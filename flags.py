@@ -3,6 +3,7 @@ import emoji
 # COUNTRY = f"{emoji.emojize(':COUNTRY:')}"
 
 Australia = f"{emoji.emojize(':Australia:')}"
+# Žyvie Viečna!
 Belarus = f"{emoji.emojize(':white_circle::red_circle::white_circle:')}"
 Italy = f"{emoji.emojize(':Italy:')}"
 SanMarino = f"{emoji.emojize(':San_Marino:')}"
