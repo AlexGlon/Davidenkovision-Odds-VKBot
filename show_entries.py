@@ -11,8 +11,8 @@ def entry_iter():
     for entry in entries:
         output_year = (lambda x: ' ' if x == None else f" {x} ")(entry['year'])
         # flag field uses a special dict defined in flags.py that has all flags.___ commands ready
-        output = f"{entry['running_order']} {flags.country_dict[entry['country']]} {entry['country']}"
-        output_entryname = f"{entry['artist']} - {entry['entry']}"
+        output = f"{entry['running_order']}. {flags.country_dict[entry['country']]} {entry['country']}"
+        output_entryname = f" | {entry['artist']} - {entry['entry']}"
 
         output = output + output_year + output_entryname
         # print(entry["running_order"], flags.country_dict[entry['country']],
