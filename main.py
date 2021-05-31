@@ -38,6 +38,8 @@ for event in longpoll.listen():
                 write_msg(event.user_id, show_entries.print_BLR())
             elif request == "ну и хер с тобой, я тоже вызываю!":
                 write_msg(event.user_id, show_entries.print_AUS())
+            elif request == "заявки":
+                write_msg(event.user_id, show_entries.entry_iter())
             elif request.lower() == "скажи когда":
                 write_msg(event.user_id, f" {emoji.emojize(':France: :Faroe_Islands:')} КОГДААААААААААА")
             else:
