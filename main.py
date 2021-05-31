@@ -4,6 +4,7 @@ import vk_api
 import emoji
 
 import show_entries
+import accept_bet
 
 from vk_api.longpoll import VkLongPoll, VkEventType
 
@@ -43,7 +44,7 @@ for event in longpoll.listen():
 
             # TODO
             elif request == "ставка":
-                write_msg(event.user_id, show_entries.entry_iter())
+                accept_bet.entry_point(event.user_id, longpoll, vk)
 
             elif request.lower() == "скажи когда":
                 write_msg(event.user_id, f" {emoji.emojize(':France: :Faroe_Islands:')} КОГДААААААААААА")
