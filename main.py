@@ -39,11 +39,11 @@ for event in longpoll.listen():
                 write_msg(event.user_id, show_entries.print_BLR())
             elif request == "ну и хер с тобой, я тоже вызываю!":
                 write_msg(event.user_id, show_entries.print_AUS())
-            elif request == "заявки":
+            elif request.lower() == "заявки":
                 write_msg(event.user_id, show_entries.entry_iter())
 
             # TODO
-            elif request == "ставка":
+            elif request.lower() == "ставка":
                 accept_bet.entry_point(event.user_id, longpoll, vk)
 
             elif request.lower() == "скажи когда":

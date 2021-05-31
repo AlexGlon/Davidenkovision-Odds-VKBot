@@ -40,46 +40,54 @@ def write_msg(user_id, message, vk):
     vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
 
 
+def bet_processing(user_id, arg_list, tokens_available, vk):
+    # Сообщение от пользователя gets split
+    current_bet = {
+        "country_id": 0,
+        "tokens": 0
+    }
+    user_data = load_data(user_id)
+
+    if arg_list[0].isnumeric() and arg_list[1].isnumeric():
+        current_bet["country_id"] = int(arg_list[0])
+        current_bet["tokens"] = int(arg_list[1])
+
+    if current_bet["country_id"] < 1 or current_bet["country_id"] > 26:
+        write_msg(user_id, "Неверный код страны! Попробуйте снова или введите 'выход' для выхода.", vk)
+        return False
+    if current_bet["tokens"] < 1 or current_bet["tokens"] > tokens_available:
+        write_msg(user_id, "Неверное количество фишек! Попробуйте снова или введите 'выход' для выхода.", vk)
+        return False
+
+    print(user_data)
+    user_data['tokens_available'] = tokens_available - current_bet["tokens"]
+    user_data['bets'].append(current_bet)
+
+    with open(str(user_id) + '.json', 'w') as file:
+        json.dump(user_data, file, indent=4)
+
+    write_msg(user_id, f"Ставка на заявку {current_bet['country_id']} в количестве {current_bet['tokens']} фишек с коэффициентом {'__'} принята! При желании, её можно снять.", vk)
+    return True
+
 
 def entry_point(user_id, longpoll, vk):
-
     tokens_available = check_tokens(user_id)
 
     if tokens_available == 0:
         write_msg(user_id, "Вы уже использовали все фишки! Вы никогда не были крахобором...", vk)
         return
     else:
-        write_msg(user_id, f"Давайте сделаем ставку! У вас есть {tokens_available} фишек.\nЧтобы сделать ставку, введите порядковый номер заявки и количество фишек в формате '[заявка] [фишки]'.", vk)
+        write_msg(user_id, f"Давайте сделаем ставку! У вас есть {tokens_available} фишек.\nЧтобы сделать ставку, введите порядковый номер заявки и количество фишек в формате '[заявка] [фишки]'.\nВведите 'заявки', если вы хотите вспомнить порядковый номер заявки.", vk)
 
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.user_id == user_id:
             if event.to_me:
-
-                # Сообщение от пользователя gets split
-                arg_list = event.text.split()
-                current_bet = {
-                    "country_id": 0,
-                    "tokens": 0
-                }
-                user_data = load_data(user_id)
-
-                if arg_list[0].isnumeric() and arg_list[1].isnumeric():
-                    current_bet["country_id"] = int(arg_list[0])
-                    current_bet["tokens"] = int(arg_list[1])
-
-                if current_bet["country_id"] < 1 or current_bet["country_id"] > 26:
-                    write_msg(user_id, "Неверный код страны!", vk)
+                if event.text.lower() == "выход":
+                    write_msg(user_id, "Ты, сучка, должна уйти!", vk)
                     return
-                if current_bet["tokens"] < 1 or current_bet["tokens"] > tokens_available:
-                    write_msg(user_id, "Неверное количество фишек!", vk)
+                if event.text.lower() == "заявки":
+                    import show_entries
+                    write_msg(user_id, show_entries.entry_iter(), vk)
+                    continue
+                if bet_processing(user_id, event.text.split(), tokens_available, vk):
                     return
-
-                print(user_data)
-                user_data['tokens_available'] = tokens_available - current_bet["tokens"]
-                user_data['bets'].append(current_bet)
-
-                with open(str(user_id) + '.json', 'w') as file:
-                    json.dump(user_data, file, indent=4)
-
-                write_msg(user_id, f"Ставка на заявку {current_bet['country_id']} в количестве {current_bet['tokens']} фишек с коэффициентом {'__'} принята! При желании, её можно снять.", vk)
-                return
