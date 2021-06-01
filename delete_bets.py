@@ -24,6 +24,7 @@ def delete_bet(message, user_id, vk):
     bet -= 1
 
     calculate_stats.calculate(user_data['bets'][bet]['entry_id'], -user_data['bets'][bet]['tokens'])
+    user_data['tokens_available'] += user_data['bets'][bet]['tokens']
     user_data['bets'].pop(bet)
     with open(str(user_id) + '.json', 'w') as file:
         json.dump(user_data, file, indent=4)
@@ -32,6 +33,7 @@ def delete_bet(message, user_id, vk):
 
 def entry_point(user_id, longpoll, vk):
     if show_bets.entry_point(user_id) == "У вас на данный момент нет никаких ставок.":
+        write_msg(user_id, show_bets.entry_point(user_id), vk)
         return
     write_msg(user_id, "Для удаления ставки введите её номер из списка. Для выхода из меню введите 'выход'. " + show_bets.entry_point(user_id), vk)
 
