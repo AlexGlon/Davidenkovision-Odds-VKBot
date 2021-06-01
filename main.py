@@ -1,3 +1,4 @@
+import flags
 from token_vk import token
 import vk_api
 
@@ -21,6 +22,7 @@ vk = vk_api.VkApi(token=token)
 # Работа с сообщениями
 longpoll = VkLongPoll(vk)
 
+bets_open = True
 
 # Основной цикл
 for event in longpoll.listen():
@@ -35,6 +37,11 @@ for event in longpoll.listen():
             request = event.text
 
             # Каменная логика ответа
+            if request.lower() == "чего ж ты твaрина!":
+                if bets_open:
+                    bets_open = False
+                else:
+                    bets_open = True
             if request.lower() == "сучка удали":
                 write_msg(event.user_id, "УДАЛИИИИ!")
             elif request.lower() == "жыве беларусь!":
@@ -48,14 +55,21 @@ for event in longpoll.listen():
             elif request.lower() == "мои ставки":
                 write_msg(event.user_id, show_bets.entry_point(event.user_id))
             elif request.lower() == "удалить ставку":
-                delete_bets.entry_point(event.user_id, longpoll, vk)
+                if bets_open:
+                    delete_bets.entry_point(event.user_id, longpoll, vk)
+                else:
+                    write_msg(event.user_id, "Ставки закрыты и удалить их нельзя!")
+
 
             # TODO
             elif request.lower() == "ставка":
-                accept_bet.entry_point(event.user_id, longpoll, vk)
+                if bets_open:
+                    accept_bet.entry_point(event.user_id, longpoll, vk)
+                else:
+                    write_msg(event.user_id, "Ставки закрыты и сделать их нельзя!")
 
             elif request.lower() == "скажи когда":
-                write_msg(event.user_id, f" {emoji.emojize(':France: :Faroe_Islands:')} КОГДААААААААААА")
+                write_msg(event.user_id, f" {flags.Belarus} КОГДААААААААААА")
             else:
                 write_msg(event.user_id, "Ты чё за ним прячешься?! Ты всё время с кем-нибудь!...")
 
