@@ -43,7 +43,8 @@ def bet_processing(user_id, arg_list, tokens_available, vk):
     # Сообщение от пользователя gets split
     current_bet = {
         "entry_id": 0,
-        "tokens": 0
+        "tokens": 0,
+        "coefficient": 0,
     }
     user_data = load_data(user_id)
 
@@ -66,7 +67,7 @@ def bet_processing(user_id, arg_list, tokens_available, vk):
 
     calculate_stats.calculate(current_bet['entry_id'], current_bet['tokens'])
 
-    write_msg(user_id, f"Ставка на заявку {current_bet['entry_id']} в количестве {current_bet['tokens']} фишек с коэффициентом {'__'} принята! При желании, её можно снять.", vk)
+    write_msg(user_id, f"Ставка на заявку {current_bet['entry_id']} в количестве {current_bet['tokens']} фишек с коэффициентом {current_bet['coefficient']} принята! При желании, её можно снять.", vk)
     return True
 
 

@@ -41,6 +41,8 @@ for event in longpoll.listen():
                 write_msg(event.user_id, show_entries.print_AUS())
             elif request.lower() == "заявки":
                 write_msg(event.user_id, show_entries.entry_iter())
+            elif request.lower() == "ставки":
+                write_msg(event.user_id, show_entries.entry_iter(bet=True))
 
             # TODO
             elif request.lower() == "ставка":
