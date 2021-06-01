@@ -60,10 +60,10 @@ def bet_processing(user_id, arg_list, tokens_available, vk):
 
 
     if current_bet["entry_id"] < 1 or current_bet["entry_id"] > 26:
-        write_msg(user_id, "Неверный код страны! Попробуйте снова или введите 'выход' для выхода.", vk)
+        write_msg(user_id, "Неверный код страны! Попробуйте ввести запрос снова или введите 'выход' для выхода.", vk)
         return False
     if current_bet["tokens"] < 1 or current_bet["tokens"] > tokens_available:
-        write_msg(user_id, "Неверное количество фишек! Попробуйте снова или введите 'выход' для выхода.", vk)
+        write_msg(user_id, "Неверное количество фишек! Попробуйте ввести запрос снова или введите 'выход' для выхода.", vk)
         return False
 
     current_bet['coefficient'] = get_coefficient(current_bet["entry_id"])
@@ -76,7 +76,7 @@ def bet_processing(user_id, arg_list, tokens_available, vk):
 
     calculate_stats.calculate(current_bet['entry_id'], current_bet['tokens'])
 
-    write_msg(user_id, f"Ставка на заявку {current_bet['entry_id']} в количестве {current_bet['tokens']} фишек с коэффициентом {current_bet['coefficient']} принята! При желании, её можно снять.", vk)
+    write_msg(user_id, f"Ставка на заявку {current_bet['entry_id']} в количестве {current_bet['tokens']} фишек с коэффициентом {current_bet['coefficient']} принята! При желании, её можно снять командой 'удалить ставку'.", vk)
     return True
 
 
@@ -87,7 +87,7 @@ def entry_point(user_id, longpoll, vk):
         write_msg(user_id, "Вы уже использовали все фишки! Вы никогда не были крахобором...", vk)
         return
     else:
-        write_msg(user_id, f"Давайте сделаем ставку! У вас есть {tokens_available} фишек.\nЧтобы сделать ставку, введите порядковый номер заявки и количество фишек в формате '[заявка] [фишки]'.\nВведите 'заявки', если вы хотите вспомнить порядковый номер заявки.", vk)
+        write_msg(user_id, f"Давайте сделаем ставку! У вас есть {tokens_available} фишек.\nЧтобы сделать ставку, введите порядковый номер заявки и количество фишек в формате 'заявка фишки', к примеру, '1 99'.\nВведите 'заявки', если вы хотите увидеть список заявок.", vk)
 
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.user_id == user_id:

@@ -19,7 +19,7 @@ def delete_bet(message, user_id, vk):
     user_data = accept_bet.load_data(user_id)
 
     if bet > len(user_data['bets']) or bet < 1:
-        write_msg(user_id, "Неверное значение! Попробуйте снова.", vk)
+        write_msg(user_id, "Неверный номер ставки! Попробуйте снова.", vk)
         return False
     bet -= 1
 
@@ -44,5 +44,5 @@ def entry_point(user_id, longpoll, vk):
                     write_msg(user_id, "Ты, сучка, должна уйти!", vk)
                     return
                 if delete_bet(event.text.split()[0], user_id, vk):
-                    write_msg(user_id, "Ставка удалена. Вы никогда не были крахобором...", vk)
+                    write_msg(user_id, "Ставка удалена. Вы можете потратить эти 20 тысяч на холодильник!", vk)
                     return
