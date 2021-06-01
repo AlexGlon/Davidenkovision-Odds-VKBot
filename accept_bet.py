@@ -39,6 +39,12 @@ def write_msg(user_id, message, vk):
     vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
 
 
+def get_coefficient(entry_id):
+    with open('stats.json', 'r') as stats_f:
+        stats = json.load(stats_f)
+    return stats['entry_stats'][entry_id]['current_coef']
+
+
 def bet_processing(user_id, arg_list, tokens_available, vk):
     # Сообщение от пользователя gets split
     current_bet = {
@@ -52,12 +58,15 @@ def bet_processing(user_id, arg_list, tokens_available, vk):
         current_bet["entry_id"] = int(arg_list[0])
         current_bet["tokens"] = int(arg_list[1])
 
+
     if current_bet["entry_id"] < 1 or current_bet["entry_id"] > 26:
         write_msg(user_id, "Неверный код страны! Попробуйте снова или введите 'выход' для выхода.", vk)
         return False
     if current_bet["tokens"] < 1 or current_bet["tokens"] > tokens_available:
         write_msg(user_id, "Неверное количество фишек! Попробуйте снова или введите 'выход' для выхода.", vk)
         return False
+
+    current_bet['coefficient'] = get_coefficient(current_bet["entry_id"])
 
     print(user_data)
     user_data['tokens_available'] = tokens_available - current_bet["tokens"]
