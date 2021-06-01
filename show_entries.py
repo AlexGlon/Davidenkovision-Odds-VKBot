@@ -39,8 +39,8 @@ def entry_iter(bet=False):
 
 
 def print_BLR():
-    return f"2. {flags.Belarus} Len - KOGDA"
+    return f"{flags.Belarus} ты мне скажи когда? КОГДААААААА?????"
 
 
 def print_AUS():
-    return f"1. {flags.Australia} Gypsaigne - Deletecolour"
+    return f"{flags.Australia} ну и хер с тобой, я тоже вызываю!"

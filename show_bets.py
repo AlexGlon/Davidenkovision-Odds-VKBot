@@ -16,7 +16,7 @@ def entry_point(user_id):
         entry = entries[bet['entry_id']-1]
         line = f"{user_data['bets'].index(bet)+1}. {flags.country_dict[entry['country']]} {entry['country']}"
         line_year = (lambda x: ' ' if x == None else f" {x} ")(entry['year'])
-        line_entry = f" | {entry['artist']} — {entry['entry']} | {bet['tokens']} (Коэффициент: {bet['coefficient']})\n"
+        line_entry = f" | {entry['artist']} — {entry['entry']} | (Фишек поставлено: {bet['tokens']}; коэффициент: {bet['coefficient']})\n"
         response += line + line_year + line_entry
 
     return response

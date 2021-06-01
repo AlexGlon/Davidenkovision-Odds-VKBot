@@ -35,11 +35,11 @@ for event in longpoll.listen():
             request = event.text
 
             # Каменная логика ответа
-            if request == "сучка удали":
+            if request.lower() == "сучка удали":
                 write_msg(event.user_id, "УДАЛИИИИ!")
-            elif request == "жыве беларусь!":
+            elif request.lower() == "жыве беларусь!":
                 write_msg(event.user_id, show_entries.print_BLR())
-            elif request == "ну и хер с тобой, я тоже вызываю!":
+            elif request.lower() == "я вызываю милицию":
                 write_msg(event.user_id, show_entries.print_AUS())
             elif request.lower() == "заявки":
                 write_msg(event.user_id, show_entries.entry_iter())
