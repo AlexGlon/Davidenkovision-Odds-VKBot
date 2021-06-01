@@ -1,8 +1,7 @@
 import json
 from vk_api.longpoll import VkEventType
-
-
 from pathlib import Path
+import calculate_stats
 
 # TODO: user sends an entry code and how much tokens he wants to bet
 
@@ -43,16 +42,16 @@ def write_msg(user_id, message, vk):
 def bet_processing(user_id, arg_list, tokens_available, vk):
     # Сообщение от пользователя gets split
     current_bet = {
-        "country_id": 0,
+        "entry_id": 0,
         "tokens": 0
     }
     user_data = load_data(user_id)
 
     if arg_list[0].isnumeric() and arg_list[1].isnumeric():
-        current_bet["country_id"] = int(arg_list[0])
+        current_bet["entry_id"] = int(arg_list[0])
         current_bet["tokens"] = int(arg_list[1])
 
-    if current_bet["country_id"] < 1 or current_bet["country_id"] > 26:
+    if current_bet["entry_id"] < 1 or current_bet["entry_id"] > 26:
         write_msg(user_id, "Неверный код страны! Попробуйте снова или введите 'выход' для выхода.", vk)
         return False
     if current_bet["tokens"] < 1 or current_bet["tokens"] > tokens_available:
@@ -62,11 +61,12 @@ def bet_processing(user_id, arg_list, tokens_available, vk):
     print(user_data)
     user_data['tokens_available'] = tokens_available - current_bet["tokens"]
     user_data['bets'].append(current_bet)
-
     with open(str(user_id) + '.json', 'w') as file:
         json.dump(user_data, file, indent=4)
 
-    write_msg(user_id, f"Ставка на заявку {current_bet['country_id']} в количестве {current_bet['tokens']} фишек с коэффициентом {'__'} принята! При желании, её можно снять.", vk)
+    calculate_stats.calculate(current_bet['entry_id'], current_bet['tokens'])
+
+    write_msg(user_id, f"Ставка на заявку {current_bet['entry_id']} в количестве {current_bet['tokens']} фишек с коэффициентом {'__'} принята! При желании, её можно снять.", vk)
     return True
 
 
