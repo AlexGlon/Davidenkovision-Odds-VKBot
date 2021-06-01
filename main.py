@@ -6,6 +6,7 @@ import emoji
 import show_entries
 import show_bets
 import accept_bet
+import delete_bets
 
 from vk_api.longpoll import VkLongPoll, VkEventType
 
@@ -46,6 +47,8 @@ for event in longpoll.listen():
                 write_msg(event.user_id, show_entries.entry_iter(bet=True))
             elif request.lower() == "мои ставки":
                 write_msg(event.user_id, show_bets.entry_point(event.user_id))
+            elif request.lower() == "удалить ставку":
+                delete_bets.entry_point(event.user_id, longpoll, vk)
 
             # TODO
             elif request.lower() == "ставка":
