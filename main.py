@@ -71,6 +71,6 @@ for event in longpoll.listen():
             elif request.lower() == "скажи когда":
                 write_msg(event.user_id, f" {flags.Belarus} КОГДААААААААААА")
             else:
-                write_msg(event.user_id, "Ты чё за ним прячешься?! Ты всё время с кем-нибудь!...")
+                write_msg(event.user_id, show_entries.random_reply())
 
             print(f"{emoji.emojize(':France: :Faroe_Islands:')} Message sent!")

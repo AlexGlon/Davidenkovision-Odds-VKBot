@@ -4,7 +4,10 @@ from fractions import Fraction
 
 def coefficient_calculation(coef):
     k = Fraction(coef).limit_denominator(1000)
-    preliminary = k.denominator / k.numerator
+    if k.numerator == 0 and k.denominator == 1:
+        preliminary = 1000
+    else:
+        preliminary = k.denominator / k.numerator
     if preliminary < 10:
         return round(preliminary, 1)
     elif preliminary < 50:

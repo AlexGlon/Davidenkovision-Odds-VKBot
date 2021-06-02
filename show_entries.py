@@ -1,5 +1,6 @@
 import flags
 import json
+import random
 
 
 with open('entries.json', 'r') as file:
@@ -44,3 +45,15 @@ def print_BLR():
 
 def print_AUS():
     return f"{flags.Australia} ну и хер с тобой, я тоже вызываю!"
+
+
+def random_reply():
+    replies = ("Ты чё за ним прячешься?! Ты всё время с кем-нибудь!..",
+               "Я отвечаю за свои слова, я его сейчас ебану!",
+               "До чего ж ты тварина!..",
+               "Что ты врёшь, а? Что ты врёшь?!",
+               "Пираты, заебали!!!",
+               "ДОКУМЕЕЕЕЕНТЫ ПОКАЖИИИИТЕ!")
+    return random.choice(replies)
+
+
