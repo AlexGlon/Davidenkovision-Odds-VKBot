@@ -10,6 +10,7 @@ def write_msg(user_id, message, vk):
 
 
 def delete_bet(message, user_id, vk):
+    # basic syntax check logic
     if not message.isnumeric():
         write_msg(user_id, "Неверный формат! Попробуйте снова.", vk)
         return False
@@ -23,6 +24,7 @@ def delete_bet(message, user_id, vk):
         return False
     bet -= 1
 
+    # deleting the specified bet by updating general bets data and user's individual data
     calculate_stats.calculate(user_data['bets'][bet]['entry_id'], -user_data['bets'][bet]['tokens'])
     user_data['tokens_available'] += user_data['bets'][bet]['tokens']
     user_data['bets'].pop(bet)

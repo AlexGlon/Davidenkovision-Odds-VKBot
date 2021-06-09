@@ -3,13 +3,12 @@ from vk_api.longpoll import VkEventType
 from pathlib import Path
 import calculate_stats
 
-# TODO: user sends an entry code and how much tokens he wants to bet
 
-
-# first of all we check whether a fitting json file exists
+# TODO: merge this function w/ the one below?
 def check_tokens(user_id):
+    """Checks how many tokens this user has"""
     json_path = str(user_id) + '.json'
-    print(json_path)
+    print(f"{json_path} has made a 'check tokens' request")
 
     if not Path(json_path).exists():
         return 100
@@ -20,12 +19,14 @@ def check_tokens(user_id):
 
 
 def load_data(user_id):
+    """Checks whether the user has used this bot before -- if yes, loads their data, otherwise gives them 100 tokens"""
     json_path = str(user_id) + '.json'
-    print(json_path)
+    print(f"{json_path} has made a 'load data' request")
 
     if not Path(json_path).exists():
         return {
                     # TODO: is 'user_id" field even necessary here as we use the filename to keep the user_id?
+                    # post-finale update: ok this turned out to be useful when aggregating results, but this issue is still open to debate
                     "user_id": user_id,
                     "tokens_available": 100,
                     "bets": []
@@ -40,13 +41,13 @@ def write_msg(user_id, message, vk):
 
 
 def get_coefficient(entry_id):
+    """Gets the coefficient of the entry the bet is made on."""
     with open('stats.json', 'r') as stats_f:
         stats = json.load(stats_f)
     return stats['entry_stats'][entry_id]['current_coef']
 
 
 def bet_processing(user_id, arg_list, tokens_available, vk):
-    # Сообщение от пользователя gets split
     current_bet = {
         "entry_id": 0,
         "tokens": 0,
@@ -58,7 +59,7 @@ def bet_processing(user_id, arg_list, tokens_available, vk):
         current_bet["entry_id"] = int(arg_list[0])
         current_bet["tokens"] = int(arg_list[1])
 
-
+    # simple bet command syntax check
     if current_bet["entry_id"] < 1 or current_bet["entry_id"] > 26:
         write_msg(user_id, "Неверный код страны! Попробуйте ввести запрос снова или введите 'выход' для выхода.", vk)
         return False
@@ -68,7 +69,8 @@ def bet_processing(user_id, arg_list, tokens_available, vk):
 
     current_bet['coefficient'] = get_coefficient(current_bet["entry_id"])
 
-    print(user_data)
+    # updating user's data and saving it into a .json
+    print(f"Updating this data: {user_data}")
     user_data['tokens_available'] = tokens_available - current_bet["tokens"]
     user_data['bets'].append(current_bet)
     with open(str(user_id) + '.json', 'w') as file:
@@ -84,7 +86,7 @@ def entry_point(user_id, longpoll, vk):
     tokens_available = check_tokens(user_id)
 
     if tokens_available == 0:
-        write_msg(user_id, "Вы уже использовали все фишки! Вы никогда не были крахобором...", vk)
+        write_msg(user_id, "Вы уже использовали все фишки! Вы никогда не были крохобором...", vk)
         return
     else:
         write_msg(user_id, f"Давайте сделаем ставку! У вас есть {tokens_available} фишек.\nЧтобы сделать ставку, введите порядковый номер заявки и количество фишек в формате 'заявка фишки', к примеру, '1 99'.\nВведите 'заявки', если вы хотите увидеть список заявок.", vk)

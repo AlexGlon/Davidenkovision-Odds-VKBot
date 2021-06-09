@@ -28,7 +28,7 @@ def entry_iter(bet=False):
         bets = sorted(entries, key=lambda i: i['coefficient'])
         total_output = ''
         for entry in bets:
-            output_year = (lambda x: ' ' if x == None else f" {x} ")(entry['year'])
+            output_year = (lambda x: '' if x == None else f" {x} ")(entry['year'])
             output = f"{bets.index(entry)+1}. {flags.country_dict[entry['country']]} {entry['country']}"
             output_entryname = f" | {entry['artist']} — {entry['entry']} | {entry['coefficient']}"
 
@@ -39,6 +39,7 @@ def entry_iter(bet=False):
     return total_output
 
 
+# easter egg replies
 def print_BLR():
     return f"{flags.Belarus} ты мне скажи когда? КОГДААААААА?????"
 
@@ -47,7 +48,9 @@ def print_AUS():
     return f"{flags.Australia} ну и хер с тобой, я тоже вызываю!"
 
 
+# undefined command replies
 def random_reply():
+    # TODO: move these replies into a separate file for easier & quicker editing
     replies = ("Ты чё за ним прячешься?! Ты всё время с кем-нибудь!..",
                "Я отвечаю за свои слова, я его сейчас ебану!",
                "До чего ж ты тварина!..",
