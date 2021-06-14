@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import flags
 from token_vk import token
 import vk_api
