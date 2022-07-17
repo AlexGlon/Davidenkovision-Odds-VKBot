@@ -1,6 +1,5 @@
 FROM python:3.9.13-alpine
 
-# ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 RUN apt-get -y upgrade
 RUN apt-get -y install libpq-dev
