@@ -1,4 +1,4 @@
-FROM python:3.8.6
+FROM python:3.9.13-alpine
 
 # ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
@@ -14,13 +14,3 @@ RUN pip install -r /opt/dv-vkbot/requirements.txt --no-cache-dir
 
 # работает с "./usr/bin/python", но крашится из-за не ASCII-символа
 ENTRYPOINT ["./usr/bin/python3", "./opt/dv-vkbot/main.py"]
-
-
-# ADD easycar /opt/easycar
-# COPY entrypoint.sh /opt/easycar/entrypoint.sh
-# WORKDIR /opt/easycar
-
-
-# EXPOSE 8000
-
-# ENTRYPOINT [ "/bin/bash", "/opt/easycar/entrypoint.sh" ]
