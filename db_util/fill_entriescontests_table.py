@@ -93,4 +93,3 @@ for k in sf1_list:
     cur.execute(statement, (k, 4, coefficients[k], coefficients[k]/all_sum))
 
 conn.commit()
-

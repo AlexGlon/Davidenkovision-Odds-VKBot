@@ -1,13 +1,16 @@
 #!/usr/bin/python3
 
-import flags
-from token_vk import token
-import vk_api
 import emoji
+import logging
+import vk_api
+
 import show_entries
 import show_bets
 import accept_bet
 import delete_bets
+import flags
+from token_vk import token
+from core.db_connection import cur
 
 from vk_api.longpoll import VkLongPoll, VkEventType
 

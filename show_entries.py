@@ -1,7 +1,67 @@
-import flags
 import json
 import random
 
+from core.db_connection import cur
+from core.menu_step_decorator import menu_decorator
+from core.response_strings import SELECT_CONTEST_TO_SHOW_ENTRIES
+import flags
+
+
+@menu_decorator()
+def get_contest_to_show_entries():
+    """Method that fetches a list of all ongoing contests"""
+
+    statement = 'SELECT contest_id, contests.name, ct.name ' \
+                'FROM contests ' \
+                'FULL JOIN contests_types ct ' \
+                'ON ct.type_id = contests.type ' \
+                'WHERE ongoing = true;'
+
+    cur.execute(statement)
+    contests = cur.fetchall()
+
+    # TODO: implement skipping everything
+    #  if there are no ongoing contests
+    if len(contests) == 0:
+        pass
+
+    # TODO: implement moving on to showing all entries
+    #  if there is just one ongoing contest
+    #  so that users skips going through an additional menu
+    if len(contests) == 1:
+        pass
+
+    response = SELECT_CONTEST_TO_SHOW_ENTRIES
+
+    for contest in contests:
+        response += f"{contest[0]}. {contest[1]} {contest[2] if contest[2] else ''}\n"
+
+    return response
+
+
+@menu_decorator()
+def get_entries_to_show(contest_id: int):
+    statement = 'SELECT entries.entry_id, c.name, year_prefix, artist, title ' \
+                'FROM entries ' \
+                'INNER JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
+                'INNER JOIN countries c on c.country_id = entries.country_id ' \
+                f'WHERE contest_id = {contest_id};'
+
+    cur.execute(statement)
+    entries = cur.fetchall()
+
+    response = ''
+
+    # TODO: implement flag handling
+    for entry in entries:
+        response += f"{entry[0]}. {entry[1]}{' ' + entry[2] if entry[2] else ''} | {entry[3]} -- {entry[4]}\n"
+
+    return response
+
+
+# =====================================================================================================
+#                                              OLD CODE
+# =====================================================================================================
 
 with open('entries.json', 'r') as file:
     entries = json.load(file)
