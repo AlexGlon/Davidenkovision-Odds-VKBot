@@ -1,15 +1,23 @@
+from show_entries import get_contest_to_show_entries, get_entries_to_show
+
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
 
-USER_STATES = {}
+USER_STATES = {
+
+}
 
 # a dictionary that contains all menu step handler functions
 # and menu step handlers that follow
 
-NEXT_DIALOGUE_STEP_HANDLERS = {}
+NEXT_DIALOGUE_STEP_HANDLERS = {
+    get_contest_to_show_entries: get_entries_to_show
+}
 
 # a dictionary that contains all regex patterns
 # that are valid for invoking a particular menu step
 # TODO: a decorator that uses this dictionary for each menu step
 
-DIALOGUE_STEP_INVOKING_MESSAGES = {}
+DIALOGUE_STEP_INVOKING_MESSAGES = {
+    get_contest_to_show_entries: 'заявки'
+}
