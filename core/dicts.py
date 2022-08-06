@@ -1,10 +1,7 @@
 from show_entries import get_contest_to_show_entries, get_entries_to_show
 
-# a dictionary that contains information about user's last visited menu
-# and temporary information from previous menus
-
-USER_STATES = {
-
+FIRST_DIALOGUE_STEPS = {
+    r'^заявки$': get_contest_to_show_entries,
 }
 
 # a dictionary that contains all menu step handler functions
@@ -12,4 +9,5 @@ USER_STATES = {
 
 NEXT_DIALOGUE_STEP_HANDLERS = {
     get_contest_to_show_entries: get_entries_to_show,
+    get_entries_to_show: None,
 }

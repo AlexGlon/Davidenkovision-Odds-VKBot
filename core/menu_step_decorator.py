@@ -30,13 +30,16 @@ def menu_decorator(*args, **kwargs):
                 logging.info(f"SKIP {invoking_message.lower()} "
                              f"{DIALOGUE_STEP_INVOKING_PATTERNS.get(menu_step_function.__name__)} "
                              f"{DIALOGUE_STEP_INVOKING_PATTERNS}")
-                return
+                return 'flop', {}
 
-            message_to_send = menu_step_function(*args, **kwargs)
+            message_to_send, extra_info = menu_step_function(*args, **kwargs)
 
             # TODO: adding all the necessary data into a special dictionary
+            # TODO: `try/except` this block so that if there is an error we can rollback or send the user a message
 
             logging.info(f'{menu_step_function.__name__} result:\n\n{message_to_send}')
+
+            return message_to_send, extra_info
 
         return menu_step_handler
 

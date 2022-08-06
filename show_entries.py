@@ -36,7 +36,7 @@ def get_contest_to_show_entries(invoking_message=''):
     for contest in contests:
         response += f"{contest[0]}. {contest[1]} {contest[2] if contest[2] else ''}\n"
 
-    return response
+    return response, {}
 
 
 @menu_decorator()
@@ -59,7 +59,7 @@ def get_entries_to_show(invoking_message='666'):
                     f"{flags.country_dict.get(entry[1])}{' ' + entry[2] + ' |' if entry[2] else ''} " \
                     f"{entry[3]} -- {entry[4]}\n"
 
-    return response
+    return response, {}
 
 
 # =====================================================================================================
