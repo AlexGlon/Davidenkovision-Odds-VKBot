@@ -11,13 +11,5 @@ USER_STATES = {
 # and menu step handlers that follow
 
 NEXT_DIALOGUE_STEP_HANDLERS = {
-    get_contest_to_show_entries: get_entries_to_show
-}
-
-# a dictionary that contains all regex patterns
-# that are valid for invoking a particular menu step
-# TODO: a decorator that uses this dictionary for each menu step
-
-DIALOGUE_STEP_INVOKING_MESSAGES = {
-    get_contest_to_show_entries: 'заявки'
+    get_contest_to_show_entries: get_entries_to_show,
 }

@@ -8,7 +8,7 @@ import flags
 
 
 @menu_decorator()
-def get_contest_to_show_entries():
+def get_contest_to_show_entries(invoking_message=''):
     """Method that fetches a list of all ongoing contests"""
 
     statement = 'SELECT contest_id, contests.name, ct.name ' \
@@ -40,7 +40,9 @@ def get_contest_to_show_entries():
 
 
 @menu_decorator()
-def get_entries_to_show(contest_id: int):
+def get_entries_to_show(invoking_message='666'):
+    contest_id = invoking_message
+
     statement = 'SELECT entries.entry_id, c.name, year_prefix, artist, title ' \
                 'FROM entries ' \
                 'INNER JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
@@ -64,12 +66,12 @@ def get_entries_to_show(contest_id: int):
 #                                              OLD CODE
 # =====================================================================================================
 
-with open('entries.json', 'r') as file:
-    entries = json.load(file)
-
 
 # TODO: rewrite this function
 def entry_iter(bet=False):
+    with open('entries.json', 'r') as file:
+        entries = json.load(file)
+
     total_output = ''
     for entry in entries:
         output_year = (lambda x: ' ' if x == None else f" {x} ")(entry['year'])
