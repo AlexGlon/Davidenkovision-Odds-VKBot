@@ -1,5 +1,6 @@
 venv/
 backup/
+user_states_backup/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
