@@ -3,7 +3,10 @@ import random
 
 from core.db_connection import cur
 from core.menu_step_decorator import menu_decorator
-from core.response_strings import SELECT_CONTEST_TO_SHOW_ENTRIES
+from core.response_strings import (
+    NO_CONTESTS_TO_SHOW_ENTRIES,
+    SELECT_CONTEST_TO_SHOW_ENTRIES,
+)
 import flags
 
 
@@ -20,16 +23,15 @@ def get_contest_to_show_entries(invoking_message=''):
     cur.execute(statement)
     contests = cur.fetchall()
 
-    # TODO: implement skipping everything
-    #  if there are no ongoing contests
     if len(contests) == 0:
-        pass
+        response = NO_CONTESTS_TO_SHOW_ENTRIES
 
-    # TODO: implement moving on to showing all entries
-    #  if there is just one ongoing contest
-    #  so that users skips going through an additional menu
+        return response, {'terminate_menu': True}
+
     if len(contests) == 1:
-        pass
+        response, extra_info = get_entries_to_show(invoking_message=str(contests[0][0]))
+
+        return response, {'terminate_menu': True}
 
     response = SELECT_CONTEST_TO_SHOW_ENTRIES
 
@@ -54,6 +56,7 @@ def get_entries_to_show(invoking_message='666'):
 
     response = ''
 
+    # TODO: handling the case with invalid contest ID
     for entry in entries:
         response += f"{entry[0]}. " \
                     f"{flags.country_dict.get(entry[1])}{' ' + entry[2] + ' |' if entry[2] else ''} " \

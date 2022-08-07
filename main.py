@@ -16,17 +16,42 @@ from token_vk import token
 from core.db_connection import cur
 from core.dicts import FIRST_DIALOGUE_STEPS, NEXT_DIALOGUE_STEP_HANDLERS
 
-from vk_api.longpoll import VkLongPoll, VkEventType
+from vk_api.longpoll import (
+    VkEventType,
+    VkLongPoll,
+)
 
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
 
-USER_STATES = {
-
-}
+USER_STATES = {}
 
 
-def write_msg(user_id, message):
+# TODO: separate this into get/set methods?
+def write_msg_and_handle_user_states(user_id: int,
+                                     current_step_function) -> dict:
+    """Driver method for running the selected menu step function,
+    sending the result and updating `USER_STATES` dict as well."""
+
+    message_to_send, new_extra_info = current_step_function(invoking_message=incoming_message)
+
+    write_msg(user_id, message_to_send)
+
+    return {
+        'extra_info': new_extra_info
+        if not new_extra_info.get('terminate_menu')
+        else {},
+
+        'next_step': NEXT_DIALOGUE_STEP_HANDLERS[current_step_function]
+        if not new_extra_info.get('terminate_menu')
+        else None,
+
+        'last_message_timestamp': datetime.datetime.now()
+    }
+
+
+def write_msg(user_id: int, message: str) -> None:
+    """Auxiliary/alias method for sending a message to a VK user."""
     vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
 
 
@@ -48,9 +73,6 @@ for event in longpoll.listen():
         # Если оно имеет метку для меня (то есть бота)
         if event.to_me:
 
-            # Сообщение от пользователя
-            request = event.text
-
             # initializing user's dict entry
             # if it is the first time they send a message
             if not USER_STATES.get(event.user_id):
@@ -61,7 +83,7 @@ for event in longpoll.listen():
                 }
 
             logging.info(f"New user initialized: {event.user_id}")
-
+            # user's incoming message
             incoming_message = event.text
 
             # if the user is not in any menu, let's see if his message is amongst those
@@ -71,20 +93,14 @@ for event in longpoll.listen():
                 menu_done_flag = False
 
                 for pattern in FIRST_DIALOGUE_STEPS.keys():
-
                     if re.search(pattern, incoming_message):
-                        message_to_send, new_extra_info = FIRST_DIALOGUE_STEPS[pattern](invoking_message=incoming_message)
-                        write_msg(event.user_id, message_to_send)
 
-                        new_user_state = {
-                            'extra_info': new_extra_info,
-                            'next_step': NEXT_DIALOGUE_STEP_HANDLERS[FIRST_DIALOGUE_STEPS[pattern]],
-                            'last_message_timestamp': datetime.datetime.now()
-                        }
-                        USER_STATES[event.user_id] = new_user_state
+                        USER_STATES[event.user_id] = write_msg_and_handle_user_states(
+                            event.user_id,
+                            FIRST_DIALOGUE_STEPS[pattern]
+                        )
 
                         menu_done_flag = True
-
                         break
 
                 # TODO: implement sending an easter egg message if the syntax is wrong
@@ -92,18 +108,10 @@ for event in longpoll.listen():
                     pass
 
             else:
-                print()
-
-                message_to_send, new_extra_info = USER_STATES[event.user_id]['next_step'](invoking_message=incoming_message)
-                write_msg(event.user_id, message_to_send)
-
-                new_user_state = {
-                    'extra_info': new_extra_info,
-                    'next_step': NEXT_DIALOGUE_STEP_HANDLERS[USER_STATES[event.user_id]['next_step']],
-                    'last_message_timestamp': datetime.datetime.now()
-                }
-                USER_STATES[event.user_id] = new_user_state
-
+                USER_STATES[event.user_id] = write_msg_and_handle_user_states(
+                    event.user_id,
+                    USER_STATES[event.user_id]['next_step']
+                )
 
             # =====================================================================================================
             #                                              OLD CODE
