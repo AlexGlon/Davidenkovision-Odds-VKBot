@@ -28,6 +28,7 @@ USER_STATES = {}
 
 # TODO: separate this into get/set methods?
 def write_msg_and_handle_user_states(user_id: int,
+                                     incoming_message: str,
                                      current_step_function) -> dict:
     """Driver method for running the selected menu step function,
     sending the result and updating `USER_STATES` dict as well."""
@@ -83,7 +84,7 @@ for event in longpoll.listen():
 
             logging.info(f"New user initialized: {event.user_id}")
             # user's incoming message
-            incoming_message = event.text
+            incoming_message = event.text.lower()
 
             # if the user is not in any menu, let's see if his message is amongst those
             # that initiate menu browsing
@@ -96,6 +97,7 @@ for event in longpoll.listen():
 
                         USER_STATES[event.user_id] = write_msg_and_handle_user_states(
                             event.user_id,
+                            incoming_message,
                             FIRST_DIALOGUE_STEPS[pattern]
                         )
 
@@ -109,6 +111,7 @@ for event in longpoll.listen():
             else:
                 USER_STATES[event.user_id] = write_msg_and_handle_user_states(
                     event.user_id,
+                    incoming_message,
                     USER_STATES[event.user_id]['next_step']
                 )
 

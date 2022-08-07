@@ -15,11 +15,12 @@ import flags
 def get_contest_to_show_entries(invoking_message=''):
     """Method that fetches a list of all ongoing contests"""
 
-    statement = 'SELECT contest_id, contests.name, ct.name ' \
+    statement = 'SELECT row_number() OVER (ORDER BY contest_id), contests.name, ct.name ' \
                 'FROM contests ' \
                 'FULL JOIN contests_types ct ' \
                 'ON ct.type_id = contests.type ' \
-                'WHERE ongoing = true;'
+                'WHERE ongoing = true ' \
+                'ORDER BY contest_id;'
 
     cur.execute(statement)
     contests = cur.fetchall()
@@ -44,11 +45,12 @@ def get_contest_to_show_entries(invoking_message=''):
 def get_entries_to_show(invoking_message='666'):
     contest_id = invoking_message
 
-    statement = 'SELECT entries.entry_id, c.name, year_prefix, artist, title ' \
+    statement = 'SELECT row_number() OVER (ORDER BY entries.entry_id), c.name, year_prefix, artist, title ' \
                 'FROM entries ' \
                 'INNER JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
                 'INNER JOIN countries c on c.country_id = entries.country_id ' \
-                f'WHERE contest_id = {contest_id};'
+                f'WHERE contest_id = {contest_id} ' \
+                'ORDER BY entries.entry_id;'
 
     cur.execute(statement)
     entries = cur.fetchall()
