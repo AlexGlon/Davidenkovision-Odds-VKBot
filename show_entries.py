@@ -12,14 +12,14 @@ import flags
 
 
 @menu_decorator()
-def get_contest_to_show_entries(invoking_message=''):
+def get_contest_to_show_entries(**kwargs):
     """Method that fetches a list of all ongoing contests"""
 
     statement = 'SELECT row_number() OVER (ORDER BY contest_id), contests.name, ct.name ' \
                 'FROM contests ' \
                 'FULL JOIN contests_types ct ' \
                 'ON ct.type_id = contests.type ' \
-                'WHERE ongoing = true ' \
+                'WHERE ongoing = TRUE ' \
                 'ORDER BY contest_id;'
 
     cur.execute(statement)
@@ -42,8 +42,10 @@ def get_contest_to_show_entries(invoking_message=''):
 
 
 @menu_decorator()
-def get_entries_to_show(invoking_message='666'):
-    contest_id = invoking_message
+def get_entries_to_show(**kwargs):
+    """Method that fetches a list of all entries from a specified contest."""
+
+    contest_id = kwargs.get('invoking_message')
 
     statement = 'SELECT row_number() OVER (ORDER BY entries.entry_id), c.name, year_prefix, artist, title ' \
                 'FROM entries ' \

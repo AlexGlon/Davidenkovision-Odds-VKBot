@@ -29,11 +29,16 @@ USER_STATES = {}
 # TODO: separate this into get/set methods?
 def write_msg_and_handle_user_states(user_id: int,
                                      incoming_message: str,
+                                     current_extra_info: dict,
                                      current_step_function) -> dict:
     """Driver method for running the selected menu step function,
     sending the result and updating `USER_STATES` dict as well."""
 
-    message_to_send, new_extra_info = current_step_function(invoking_message=incoming_message)
+    message_to_send, new_extra_info = current_step_function(
+        invoking_message=incoming_message,
+        user_id=user_id,
+        current_extra_info=current_extra_info,
+    )
 
     write_msg(user_id, message_to_send)
 
@@ -79,7 +84,7 @@ for event in longpoll.listen():
                 USER_STATES[event.user_id] = {
                     'extra_info': {},
                     'next_step': None,
-                    'last_message_timestamp': datetime.datetime.now()
+                    'last_message_timestamp': datetime.datetime.now(),
                 }
 
             logging.info(f"New user initialized: {event.user_id}")
@@ -98,7 +103,8 @@ for event in longpoll.listen():
                         USER_STATES[event.user_id] = write_msg_and_handle_user_states(
                             event.user_id,
                             incoming_message,
-                            FIRST_DIALOGUE_STEPS[pattern]
+                            USER_STATES[event.user_id]['extra_info'],
+                            FIRST_DIALOGUE_STEPS[pattern],
                         )
 
                         menu_done_flag = True
@@ -112,7 +118,8 @@ for event in longpoll.listen():
                 USER_STATES[event.user_id] = write_msg_and_handle_user_states(
                     event.user_id,
                     incoming_message,
-                    USER_STATES[event.user_id]['next_step']
+                    USER_STATES[event.user_id]['extra_info'],
+                    USER_STATES[event.user_id]['next_step'],
                 )
 
             # =====================================================================================================
