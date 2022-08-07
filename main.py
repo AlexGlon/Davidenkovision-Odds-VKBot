@@ -1,24 +1,21 @@
 #!/usr/bin/python3
 
 import datetime
+import logging
 import re
 
-import emoji
-import logging
 import vk_api
-
-import show_bets
-import accept_bet
-import delete_bets
-import flags
-from token_vk import token
-from core.db_connection import cur
-from core.dicts import FIRST_DIALOGUE_STEPS, NEXT_DIALOGUE_STEP_HANDLERS
-
 from vk_api.longpoll import (
     VkEventType,
     VkLongPoll,
 )
+
+import accept_bet
+import delete_bets
+
+from core.db_connection import cur
+from core.dicts import FIRST_DIALOGUE_STEPS, NEXT_DIALOGUE_STEP_HANDLERS
+from token_vk import token
 
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
@@ -135,8 +132,6 @@ for event in longpoll.listen():
             #
             # elif request.lower() == "ставки":
             #     write_msg(event.user_id, show_entries.entry_iter(bet=True))
-            # elif request.lower() == "мои ставки":
-            #     write_msg(event.user_id, show_bets.entry_point(event.user_id))
             #
             # elif request.lower() == "удалить ставку":
             #     if bets_open:
