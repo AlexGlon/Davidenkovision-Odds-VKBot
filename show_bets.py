@@ -8,6 +8,7 @@ from core.response_strings import (
     BET_CANCELLATION,
     BET_CREATION_DATE,
     COEFFICIENT,
+    NO_BETS_TO_SHOW,
     NO_BETS_TO_SHOW_FOR_CURRENT_CONTESTS,
     POINTS,
 )
@@ -20,7 +21,7 @@ def get_current_contests_bets_history(**kwargs):
     user_id = kwargs.get('user_id')
 
     # TODO: keep `bets.id` for future use (bet cancellation)
-    statement = 'SELECT row_number() OVER (ORDER BY bets.id), bets.id, c.name, ct.name, bct.name, ' \
+    statement = 'SELECT row_number() OVER (ORDER BY bets.id), bets.id, c.name, c.ongoing, ct.name, bct.name, ' \
                 'c2.name, e.year_prefix, e.artist, e.title, ' \
                 'bets.points, bets.coefficient, bets.date ' \
                 'FROM bets ' \
@@ -45,6 +46,50 @@ def get_current_contests_bets_history(**kwargs):
     # that raises with using special symbols in f-strings
     new_line = '\n'
 
+    # TODO: hide all coefficients until the show's over (if the appropriate setting is on)
+    for bet in bets:
+        response += f"{bet[0]}. {BET_CANCELLATION + new_line if bet[9] < 0 else ''}" \
+                    f"{bet[2]} {bet[3] if {bet[3]} else ''}: {bet[4]}\n" \
+                    f"{country_dict.get(bet[5])}{' ' + bet[6] + ' |' if bet[6] else ''} {bet[7]} -- {bet[8]}\n" \
+                    f"{POINTS}: {int(bet[9])}\n" \
+                    f"{COEFFICIENT}: {bet[10]}\n" \
+                    f"{BET_CREATION_DATE}: {bet[11]}\n\n"
+
+    return response, {}
+
+
+@menu_decorator()
+def get_user_bets_history(**kwargs):
+    """Gets a list of user's bets in all contests."""
+
+    user_id = kwargs.get('user_id')
+
+    # TODO: keep `bets.id` for future use (bet cancellation)
+    statement = 'SELECT row_number() OVER (ORDER BY bets.id), bets.id, c.name, c.ongoing, ct.name, bct.name, ' \
+                'c2.name, e.year_prefix, e.artist, e.title, ' \
+                'bets.points, bets.coefficient, bets.date ' \
+                'FROM bets ' \
+                'LEFT JOIN contests c ON c.contest_id = bets.contest_id ' \
+                'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
+                'LEFT JOIN entries e on e.entry_id = bets.entry_id ' \
+                'LEFT JOIN countries c2 on c2.country_id = e.country_id ' \
+                'LEFT JOIN betting_categories bc on bc.betting_category_id = bets.betting_category_id ' \
+                'LEFT JOIN betting_category_types bct on bct.type_id = bc.category_type ' \
+                f'WHERE user_id = {user_id} ' \
+                'ORDER BY bets.id;'
+
+    cur.execute(statement)
+    bets = cur.fetchall()
+
+    if len(bets) == 0:
+        return NO_BETS_TO_SHOW, {}
+
+    response = ''
+    # adding this variable here because of SyntaxError
+    # that raises with using special symbols in f-strings
+    new_line = '\n'
+
+    # TODO: hide all coefficients until the show's over (if the appropriate setting is on)
     for bet in bets:
         response += f"{bet[0]}. {BET_CANCELLATION + new_line if bet[9] < 0 else ''}" \
                     f"{bet[2]} {bet[3] if {bet[3]} else ''}: {bet[4]}\n" \
