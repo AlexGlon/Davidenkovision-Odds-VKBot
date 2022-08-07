@@ -15,7 +15,7 @@ import delete_bets
 
 from core.db_connection import cur
 from core.dicts import FIRST_DIALOGUE_STEPS, NEXT_DIALOGUE_STEP_HANDLERS
-from token_vk import token
+from core.dotenv_variables import TOKEN
 
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
@@ -58,13 +58,10 @@ def write_msg(user_id: int, message: str) -> None:
 
 
 # Авторизуемся как сообщество
-vk = vk_api.VkApi(token=token)
+vk = vk_api.VkApi(token=TOKEN)
 
 # Работа с сообщениями
 longpoll = VkLongPoll(vk)
-
-# this parameter controls whether the bets are in read-only mode (when you can only check your own bets and the bets dashboard)
-bets_open = True
 
 # Основной цикл
 for event in longpoll.listen():

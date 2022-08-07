@@ -1,17 +1,21 @@
 import json
-from flags import country_dict
+import logging
+
 import accept_bet
 
 from core.db_connection import cur
+from core.dotenv_variables import COEFFICIENT_OBSCURITY
 from core.menu_step_decorator import menu_decorator
 from core.response_strings import (
     BET_CANCELLATION,
     BET_CREATION_DATE,
     COEFFICIENT,
+    HIDDEN_COEFFICIENT,
     NO_BETS_TO_SHOW,
     NO_BETS_TO_SHOW_FOR_CURRENT_CONTESTS,
     POINTS,
 )
+from flags import country_dict
 
 
 @menu_decorator()
@@ -46,14 +50,13 @@ def get_current_contests_bets_history(**kwargs):
     # that raises with using special symbols in f-strings
     new_line = '\n'
 
-    # TODO: hide all coefficients until the show's over (if the appropriate setting is on)
     for bet in bets:
-        response += f"{bet[0]}. {BET_CANCELLATION + new_line if bet[9] < 0 else ''}" \
-                    f"{bet[2]} {bet[3] if {bet[3]} else ''}: {bet[4]}\n" \
-                    f"{country_dict.get(bet[5])}{' ' + bet[6] + ' |' if bet[6] else ''} {bet[7]} -- {bet[8]}\n" \
-                    f"{POINTS}: {int(bet[9])}\n" \
-                    f"{COEFFICIENT}: {bet[10]}\n" \
-                    f"{BET_CREATION_DATE}: {bet[11]}\n\n"
+        response += f"{bet[0]}. {BET_CANCELLATION + new_line if bet[10] < 0 else ''}" \
+                    f"{bet[2]} {bet[4] if {bet[4]} else ''}: {bet[5]}\n" \
+                    f"{country_dict.get(bet[6])}{' ' + bet[7] + ' |' if bet[7] else ''} {bet[8]} -- {bet[9]}\n" \
+                    f"{POINTS}: {int(bet[10])}\n" \
+                    f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if (COEFFICIENT_OBSCURITY and bet[3]) else bet[11]}\n" \
+                    f"{BET_CREATION_DATE}: {bet[12]}\n\n"
 
     return response, {}
 
@@ -89,14 +92,13 @@ def get_user_bets_history(**kwargs):
     # that raises with using special symbols in f-strings
     new_line = '\n'
 
-    # TODO: hide all coefficients until the show's over (if the appropriate setting is on)
     for bet in bets:
-        response += f"{bet[0]}. {BET_CANCELLATION + new_line if bet[9] < 0 else ''}" \
-                    f"{bet[2]} {bet[3] if {bet[3]} else ''}: {bet[4]}\n" \
-                    f"{country_dict.get(bet[5])}{' ' + bet[6] + ' |' if bet[6] else ''} {bet[7]} -- {bet[8]}\n" \
-                    f"{POINTS}: {int(bet[9])}\n" \
-                    f"{COEFFICIENT}: {bet[10]}\n" \
-                    f"{BET_CREATION_DATE}: {bet[11]}\n\n"
+        response += f"{bet[0]}. {BET_CANCELLATION + new_line if bet[10] < 0 else ''}" \
+                    f"{bet[2]} {bet[4] if {bet[4]} else ''}: {bet[5]}\n" \
+                    f"{country_dict.get(bet[6])}{' ' + bet[7] + ' |' if bet[7] else ''} {bet[8]} -- {bet[9]}\n" \
+                    f"{POINTS}: {int(bet[10])}\n" \
+                    f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if (COEFFICIENT_OBSCURITY and bet[3]) else bet[11]}\n" \
+                    f"{BET_CREATION_DATE}: {bet[12]}\n\n"
 
     return response, {}
 

@@ -3,6 +3,7 @@
 BET_CANCELLATION = 'Отмена ставки'
 BET_CREATION_DATE = 'Дата ставки'
 COEFFICIENT = 'Коэффициент'
+HIDDEN_COEFFICIENT = 'Временно скрыт'
 INVALID_CONTEST_TO_SHOW_ENTRIES = 'Hеверный номер конкурса! ' \
                                   'Повторите процесс заново, отправив сообщение с текстом "заявки".'
 NO_BETS_TO_SHOW = 'Вы ещё не делали никаких ставок.'
