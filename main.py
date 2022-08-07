@@ -54,6 +54,7 @@ def write_msg_and_handle_user_states(user_id: int,
 
 def write_msg(user_id: int, message: str) -> None:
     """Auxiliary/alias method for sending a message to a VK user."""
+
     vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
 
 

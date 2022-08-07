@@ -7,9 +7,3 @@ DIALOGUE_STEP_INVOKING_PATTERNS = {
     'get_entries_to_show': r'^\d+',
     'get_user_bets_history': r'^история ставок$',
 }
-
-FIRST_DIALOGUE_STEPS = (
-    r'^заявки$',
-    r'^история ставок$',
-    r'^мои ставки$',
-)
