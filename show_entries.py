@@ -4,6 +4,7 @@ import random
 from core.db_connection import cur
 from core.menu_step_decorator import menu_decorator
 from core.response_strings import (
+    INVALID_CONTEST_TO_SHOW_ENTRIES,
     NO_CONTESTS_TO_SHOW_ENTRIES,
     SELECT_CONTEST_TO_SHOW_ENTRIES,
 )
@@ -24,9 +25,7 @@ def get_contest_to_show_entries(invoking_message=''):
     contests = cur.fetchall()
 
     if len(contests) == 0:
-        response = NO_CONTESTS_TO_SHOW_ENTRIES
-
-        return response, {'terminate_menu': True}
+        return NO_CONTESTS_TO_SHOW_ENTRIES, {'terminate_menu': True}
 
     if len(contests) == 1:
         response, extra_info = get_entries_to_show(invoking_message=str(contests[0][0]))
@@ -54,9 +53,11 @@ def get_entries_to_show(invoking_message='666'):
     cur.execute(statement)
     entries = cur.fetchall()
 
+    if len(entries) == 0:
+        return INVALID_CONTEST_TO_SHOW_ENTRIES, {}
+
     response = ''
 
-    # TODO: handling the case with invalid contest ID
     for entry in entries:
         response += f"{entry[0]}. " \
                     f"{flags.country_dict.get(entry[1])}{' ' + entry[2] + ' |' if entry[2] else ''} " \

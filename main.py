@@ -7,7 +7,6 @@ import emoji
 import logging
 import vk_api
 
-import show_entries
 import show_bets
 import accept_bet
 import delete_bets
