@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
 import datetime
+import json
 import logging
 import re
+import threading
 
 import vk_api
 from vk_api.longpoll import (
@@ -15,12 +17,36 @@ import delete_bets
 
 from core.db_connection import cur
 from core.dicts import FIRST_DIALOGUE_STEPS, NEXT_DIALOGUE_STEP_HANDLERS
-from core.dotenv_variables import TOKEN
+from core.dotenv_variables import MINUTES_PER_BACKUP, TOKEN
 
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
-
 USER_STATES = {}
+
+
+def backup_user_states() -> None:
+    """Backs up USER_STATES dict once in a certain period of time."""
+
+    threading.Timer(60.0 * MINUTES_PER_BACKUP, backup_user_states).start()
+
+    # preparing data for backup
+    USER_STATES_BACKUP = USER_STATES.copy()
+
+    for user, data in USER_STATES_BACKUP.items():
+        if callable(data['next_step']):
+            # TODO: figure out how to fix incorrect __name__ representation
+            USER_STATES_BACKUP[user]['next_step'] = data['next_step'].__name__
+        USER_STATES_BACKUP[user]['last_message_timestamp'] = str(data['last_message_timestamp'])
+
+    json_backup = json.dumps(USER_STATES_BACKUP, indent=4)
+    backup_date = datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
+
+    with open(f'./user_states_backup/{backup_date}.json', 'w') as backup_file:
+        backup_file.write(json_backup)
+        logging.info(f"Backed up USER_STATES in ./user_states_backup/{backup_date}.json file!")
+
+
+backup_user_states()
 
 
 # TODO: separate this into get/set methods?
@@ -101,8 +127,8 @@ for event in longpoll.listen():
                             USER_STATES[event.user_id]['extra_info'],
                             FIRST_DIALOGUE_STEPS[pattern],
                         )
-
                         menu_done_flag = True
+
                         break
 
                 # TODO: implement sending an easter egg message if the syntax is wrong
