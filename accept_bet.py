@@ -1,7 +1,7 @@
 import json
 from vk_api.longpoll import VkEventType
 from pathlib import Path
-import calculate_stats
+from utils import calculate_stats
 
 
 # TODO: merge this function w/ the one below?

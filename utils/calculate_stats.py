@@ -5,6 +5,7 @@ from fractions import Fraction
 def coefficient_calculation(coef):
     """Calculates bet coefficients of each entry."""
     k = Fraction(coef).limit_denominator(1000)
+
     if k.numerator == 0 and k.denominator == 1:
         preliminary = 1000
     else:

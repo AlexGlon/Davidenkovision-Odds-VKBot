@@ -13,9 +13,9 @@ import flags
 
 @menu_decorator()
 def get_contest_to_show_entries(**kwargs):
-    """Method that fetches a list of all ongoing contests"""
+    """Method that fetches a list of all ongoing contests."""
 
-    statement = 'SELECT row_number() OVER (ORDER BY contest_id), contests.name, ct.name ' \
+    statement = 'SELECT row_number() OVER (ORDER BY contest_id), contest_id, contests.name, ct.name ' \
                 'FROM contests ' \
                 'FULL JOIN contests_types ct ' \
                 'ON ct.type_id = contests.type ' \
@@ -29,14 +29,14 @@ def get_contest_to_show_entries(**kwargs):
         return NO_CONTESTS_TO_SHOW_ENTRIES, {'terminate_menu': True}
 
     if len(contests) == 1:
-        response, extra_info = get_entries_to_show(invoking_message=str(contests[0][0]))
+        response, extra_info = get_entries_to_show(invoking_message=str(contests[0][1]))
 
         return response, {'terminate_menu': True}
 
     response = SELECT_CONTEST_TO_SHOW_ENTRIES
 
     for contest in contests:
-        response += f"{contest[0]}. {contest[1]} {contest[2] if contest[2] else ''}\n"
+        response += f"{contest[0]}. {contest[2]} {contest[3] if contest[3] else ''}\n"
 
     return response, {}
 

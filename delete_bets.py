@@ -2,7 +2,7 @@ import json
 from vk_api.longpoll import VkEventType
 import accept_bet
 import show_bets
-import calculate_stats
+from utils import calculate_stats
 
 
 def write_msg(user_id, message, vk):
