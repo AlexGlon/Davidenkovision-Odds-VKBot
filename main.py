@@ -12,10 +12,6 @@ from vk_api.longpoll import (
     VkLongPoll,
 )
 
-import accept_bet
-import delete_bets
-
-from core.db_connection import cur
 from core.dicts import FIRST_DIALOGUE_STEPS, NEXT_DIALOGUE_STEP_HANDLERS
 from core.dotenv_variables import MINUTES_PER_BACKUP, TOKEN
 

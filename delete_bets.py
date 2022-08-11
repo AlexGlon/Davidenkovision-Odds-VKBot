@@ -1,6 +1,6 @@
 import json
 from vk_api.longpoll import VkEventType
-import accept_bet
+from bets import accept_bet
 import show_bets
 from utils import calculate_stats
 

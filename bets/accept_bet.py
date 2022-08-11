@@ -1,7 +1,105 @@
 import json
+import logging
+
 from vk_api.longpoll import VkEventType
 from pathlib import Path
+
+from core.db_connection import conn, cur
+from core.menu_step_decorator import menu_decorator
+from core.response_strings import (
+    NO_CATEGORIES_TO_PLACE_BETS_ON,
+    SELECT_CATEGORY_TO_PLACE_BETS_ON,
+)
 from utils import calculate_stats
+
+
+@menu_decorator()
+def get_bet_category_to_bet_on(**kwargs):
+    """Method that fetches a list of all ongoing betting categories
+    for user to pick for further bet placing."""
+
+    user_id = kwargs.get('user_id')
+
+    # TODO: do we need deadline_date in WHERE block here?
+    statement = 'SELECT row_number() OVER (ORDER BY betting_categories.betting_category_id), betting_category_id, ' \
+                'c.contest_id, c.name, ct.name, bct.name ' \
+                'FROM betting_categories ' \
+                'FULL JOIN betting_category_types bct on bct.type_id = betting_categories.category_type ' \
+                'LEFT JOIN contests c on c.contest_id = betting_categories.contest_id ' \
+                'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
+                'WHERE accepts_bets = TRUE;'
+
+    cur.execute(statement)
+    categories = cur.fetchall()
+
+    if len(categories) == 0:
+        return NO_CATEGORIES_TO_PLACE_BETS_ON, {'terminate_menu': True}
+
+    # TODO
+    if len(categories) == 1:
+        pass
+        # response, extra_info = get_bet_statuses_to_show(invoking_message=str(categories[0][1]))
+
+        # return response, {'terminate_menu': True}
+
+    contests_to_bet_on = tuple(set([category[2] for category in categories]))
+
+    statement = 'SELECT user_id, total, balances.balance_id, contest_id ' \
+                'FROM balances ' \
+                'LEFT JOIN balances_contests bc on balances.balance_id = bc.balance_id ' \
+                f'WHERE user_id = {user_id} ' \
+                f'AND contest_id in {contests_to_bet_on};'
+
+    # TODO: handle edge case when a sister contest has been opened after other contests
+    #  and user already has balances for them?
+
+    cur.execute(statement)
+    balances = cur.fetchall()
+
+    if len(balances) == 0:
+        # TODO: consolidate this into a DB-side transaction?
+
+        statement = 'INSERT INTO balances (user_id, total, balance_id) ' \
+                    f'VALUES ({user_id}, 100, DEFAULT) ' \
+                    f'RETURNING balance_id;'
+
+        cur.execute(statement)
+        balance_id = cur.fetchone()[0]
+        conn.commit()
+        logging.info(f"Created balance {balance_id} for user {user_id}")
+
+        # this will create a balance ONLY for those contests that accept bets
+
+        # for example, if we have a contest whose semifinals have passed
+        # and the first time this user checks this menu if after the semifinals
+        # he will have a balance created only for the Grand Final
+        for contest in contests_to_bet_on:
+            statement = 'INSERT INTO balances_contests (balance_id, contest_id) ' \
+                        f'VALUES ({balance_id}, {contest});'
+
+            cur.execute(statement)
+
+        conn.commit()
+        logging.info(f"Created balance->contest entries for balance {balance_id} and contests {contests_to_bet_on}")
+
+    else:
+        balance_id = balances[0][2]
+
+    response = SELECT_CATEGORY_TO_PLACE_BETS_ON
+
+    for category in categories:
+        response += f"{category[0]}. {category[3]} {category[4] if category[4] else ''} {category[5]}\n"
+
+    return response, {}
+
+
+# TODO: picking an entry
+# TODO: input validation + db entry
+# TODO: check if the time when this bet has been posted it not greater than the deadline
+
+# =====================================================================================================
+#                                              OLD CODE
+# =====================================================================================================
 
 
 # TODO: merge this function w/ the one below?
