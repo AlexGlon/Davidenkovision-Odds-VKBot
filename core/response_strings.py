@@ -4,6 +4,8 @@ BET_CANCELLATION = 'Отмена ставки'
 BET_CREATION_DATE = 'Дата ставки'
 COEFFICIENT = 'Коэффициент'
 HIDDEN_COEFFICIENT = 'Временно скрыт'
+INVALID_CATEGORY_TO_PLACE_BETS_ON = 'Hеверный номер категории! ' \
+                                    'Повторите процесс заново, отправив сообщение с текстом "ставка".'
 INVALID_CATEGORY_TO_SHOW_BET_STATUSES = 'Hеверный номер категории! ' \
                                         'Повторите процесс заново, отправив сообщение с текстом "ставки".'
 INVALID_CONTEST_TO_SHOW_ENTRIES = 'Hеверный номер конкурса! ' \
@@ -18,3 +20,5 @@ POINTS = 'Фишек поставлено'
 SELECT_CATEGORY_TO_PLACE_BETS_ON = 'Выберите категорию ставок:\n'
 SELECT_CATEGORY_TO_SHOW_BET_STATUSES = 'Выберите категорию ставок для просмотра коэффициентов:\n'
 SELECT_CONTEST_TO_SHOW_ENTRIES = 'Выберите конкурс, заявки из которого вы хотите увидеть:\n'
+SELECT_ENTRY_TO_PLACE_BETS_ON = 'Введите номер заявки, на которую хотите сделать ставку, ' \
+                                'и количество фишек через пробел. К примеру, "1 69".\n\n'

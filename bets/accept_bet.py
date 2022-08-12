@@ -5,16 +5,21 @@ from vk_api.longpoll import VkEventType
 from pathlib import Path
 
 from core.db_connection import conn, cur
+from core.dotenv_variables import COEFFICIENT_OBSCURITY
 from core.menu_step_decorator import menu_decorator
 from core.response_strings import (
+    INVALID_CATEGORY_TO_PLACE_BETS_ON,
     NO_CATEGORIES_TO_PLACE_BETS_ON,
     SELECT_CATEGORY_TO_PLACE_BETS_ON,
+    SELECT_ENTRY_TO_PLACE_BETS_ON,
 )
+from flags import country_dict
 from utils import calculate_stats
+from utils.calculate_stats import coefficient_calculation
 
 
 @menu_decorator()
-def get_bet_category_to_bet_on(**kwargs):
+def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
     """Method that fetches a list of all ongoing betting categories
     for user to pick for further bet placing."""
 
@@ -42,7 +47,8 @@ def get_bet_category_to_bet_on(**kwargs):
 
         # return response, {'terminate_menu': True}
 
-    categories_to_bet_on = tuple(set([category[1] for category in categories]))
+    categories_to_bet_on = tuple([category[1] for category in categories])
+    categories_to_bet_on_listed_number = tuple([category[0] for category in categories])
     contests_to_bet_on = tuple(set([category[2] for category in categories]))
 
     statement = 'SELECT user_id, total, balances.balance_id, contest_id ' \
@@ -95,13 +101,62 @@ def get_bet_category_to_bet_on(**kwargs):
         response, \
         {
             'balance_id': balance_id,
+            'categories_listed_number': categories_to_bet_on_listed_number,
             'category_ids': categories_to_bet_on,
             'contest_ids': contests_to_bet_on,
         }
 
 
-# TODO: picking an entry
+@menu_decorator()
+def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
+    """Method that fetches a list of all entries of the contest that belongs
+    to this betting category for user to pick for further bet placing."""
+
+    extra_info = kwargs.get('current_extra_info')
+    valid_categories = extra_info.get('categories_listed_number', ())
+    category_id = int(kwargs.get('invoking_message'))
+
+    if category_id not in valid_categories:
+        return INVALID_CATEGORY_TO_PLACE_BETS_ON, {'terminate_menu': True}
+
+    # categories listed number always goes in the ascending format
+    db_category_id = extra_info.get('category_ids')[category_id - 1]
+
+    statement = 'SELECT row_number() OVER (ORDER BY entries.entry_id), entries.entry_id, ' \
+                'c2.name, year_prefix, artist, title, ' \
+                'coefficient ' \
+                'FROM entries ' \
+                'LEFT JOIN countries c2 on c2.country_id = entries.country_id ' \
+                'LEFT JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
+                'LEFT JOIN contests c on c.contest_id = ec.contest_id ' \
+                'LEFT JOIN betting_categories bc on c.contest_id = bc.contest_id ' \
+                'LEFT JOIN entries_status es on ' \
+                '(bc.betting_category_id = es.betting_category_id AND entries.entry_id = es.entry_id) ' \
+                f'WHERE bc.betting_category_id = {db_category_id} ' \
+                'ORDER BY entries.entry_id;'
+
+    cur.execute(statement)
+    entries = cur.fetchall()
+
+    response = SELECT_ENTRY_TO_PLACE_BETS_ON
+
+    for entry in entries:
+        response += f"{entry[0]}. " \
+                    f"{country_dict.get(entry[2])} {entry[2]} {' ' + entry[3] + ' |' if entry[3] else '|'} " \
+                    f"{entry[4]} -- {entry[5]}" \
+                    f"{' | ' + str(coefficient_calculation(entry[6])) if not COEFFICIENT_OBSCURITY else ''}\n"
+
+    # TODO
+    return response, {}
+
+
 # TODO: input validation + db entry
+@menu_decorator()
+def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
+
+    return '', {}
+
+
 # TODO: check if the time when this bet has been posted it not greater than the deadline
 
 # =====================================================================================================

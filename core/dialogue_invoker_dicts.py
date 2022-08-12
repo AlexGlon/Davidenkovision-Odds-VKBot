@@ -8,5 +8,6 @@ DIALOGUE_STEP_INVOKING_PATTERNS = {
     'get_contest_to_show_entries': r'^заявки$',
     'get_current_contests_bets_history': r'^мои ставки$',
     'get_entries_to_show': r'^\d+',
+    'get_entry_to_bet_on': r'^\d+',
     'get_user_bets_history': r'^история ставок$',
 }
