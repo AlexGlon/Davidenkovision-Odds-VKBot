@@ -42,6 +42,7 @@ def get_bet_category_to_bet_on(**kwargs):
 
         # return response, {'terminate_menu': True}
 
+    categories_to_bet_on = tuple(set([category[1] for category in categories]))
     contests_to_bet_on = tuple(set([category[2] for category in categories]))
 
     statement = 'SELECT user_id, total, balances.balance_id, contest_id ' \
@@ -88,9 +89,15 @@ def get_bet_category_to_bet_on(**kwargs):
     response = SELECT_CATEGORY_TO_PLACE_BETS_ON
 
     for category in categories:
-        response += f"{category[0]}. {category[3]} {category[4] if category[4] else ''} {category[5]}\n"
+        response += f"{category[0]}. {category[3]} {category[4] + ' ' if category[4] else ''}{category[5]}\n"
 
-    return response, {}
+    return \
+        response, \
+        {
+            'balance_id': balance_id,
+            'category_ids': categories_to_bet_on,
+            'contest_ids': contests_to_bet_on,
+        }
 
 
 # TODO: picking an entry

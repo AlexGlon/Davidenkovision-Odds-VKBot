@@ -59,6 +59,8 @@ def write_msg_and_handle_user_states(user_id: int,
         current_extra_info=current_extra_info,
     )
 
+    logging.info(f"EXTRA {new_extra_info}")
+
     write_msg(user_id, message_to_send)
 
     return {
