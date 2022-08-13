@@ -171,6 +171,7 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
     and chosen entry ID, inserting a DB record after that."""
 
     extra_info = kwargs.get('current_extra_info')
+    # TODO: maybe refactor this so that there is no need to use int() everywhere down the line?
     selected_entry_id, points_to_spend = kwargs.get('invoking_message', '-999 -999').split()
 
     current_points = extra_info.get('current_points_on_balance', '-999')
