@@ -1,3 +1,4 @@
+from bets.accept_bet import get_bet_category_to_bet_on, get_entry_to_bet_on, validate_and_accept_incoming_bet
 from bets.show_current_statuses import get_bet_statuses_to_show, get_category_to_show_bet_statuses
 from show_bets import get_current_contests_bets_history, get_user_bets_history
 from show_entries import get_contest_to_show_entries, get_entries_to_show
@@ -6,6 +7,7 @@ FIRST_DIALOGUE_STEPS = {
     r'^заявки$': get_contest_to_show_entries,
     r'^история ставок$': get_user_bets_history,
     r'^мои ставки$': get_current_contests_bets_history,
+    r'^ставка$': get_bet_category_to_bet_on,
     r'^ставки$': get_category_to_show_bet_statuses,
 }
 
@@ -14,9 +16,16 @@ FIRST_DIALOGUE_STEPS = {
 
 NEXT_DIALOGUE_STEP_HANDLERS = {
     get_bet_statuses_to_show: None,
+    get_bet_category_to_bet_on: get_entry_to_bet_on,
     get_category_to_show_bet_statuses: get_bet_statuses_to_show,
     get_contest_to_show_entries: get_entries_to_show,
     get_current_contests_bets_history: None,
     get_entries_to_show: None,
+    get_entry_to_bet_on: validate_and_accept_incoming_bet,
     get_user_bets_history: None,
+    validate_and_accept_incoming_bet: None,
+}
+
+SKIPPING_NEXT_DIALOGUE_STEP_HANDLERS = {
+    get_bet_category_to_bet_on: validate_and_accept_incoming_bet,
 }

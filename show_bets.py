@@ -1,7 +1,6 @@
 import json
-import logging
 
-import accept_bet
+from bets import accept_bet
 
 from core.db_connection import cur
 from core.dotenv_variables import COEFFICIENT_OBSCURITY
