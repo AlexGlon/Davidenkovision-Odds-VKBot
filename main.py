@@ -65,7 +65,8 @@ def write_msg_and_handle_user_states(user_id: int,
 
     logging.info(f"EXTRA {new_extra_info}")
 
-    write_msg(user_id, message_to_send)
+    if message_to_send:
+        write_msg(user_id, message_to_send)
 
     if new_extra_info.get('terminate_menu'):
         next_step = None
@@ -114,8 +115,8 @@ for event in longpoll.listen():
                     'next_step': None,
                     'last_message_timestamp': datetime.datetime.now(),
                 }
+                logging.info(f"New user initialized: {event.user_id}")
 
-            logging.info(f"New user initialized: {event.user_id}")
             # user's incoming message
             incoming_message = event.text.lower()
 

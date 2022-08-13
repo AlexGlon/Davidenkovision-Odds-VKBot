@@ -2,6 +2,7 @@ import logging
 import re
 
 from core.dialogue_invoker_dicts import DIALOGUE_STEP_INVOKING_PATTERNS
+from core.service_strings import EXIT_MENU
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -18,10 +19,15 @@ def menu_decorator(*args, **kwargs):
         # is run when the decorated function is initialized
         # like, on a `def function_to_dec():` line
 
-        def menu_step_handler(*args, **kwargs):
-            invoking_message = kwargs.get('invoking_message', '')
-            pattern_to_match = DIALOGUE_STEP_INVOKING_PATTERNS.get(menu_step_function.__name__)
+        def menu_step_handler(*args, **kwargs) -> tuple[str, dict]:
+            """The decorator for validating messsage's regex pattern and calling the target method."""
 
+            invoking_message = kwargs.get('invoking_message', '')
+
+            if re.search(EXIT_MENU, invoking_message.lower()):
+                return '', {'terminate_menu': True}
+
+            pattern_to_match = DIALOGUE_STEP_INVOKING_PATTERNS.get(menu_step_function.__name__)
             result = re.search(pattern_to_match, invoking_message.lower())
 
             if not result:
@@ -30,7 +36,7 @@ def menu_decorator(*args, **kwargs):
                 logging.info(f"SKIP {invoking_message.lower()} "
                              f"{DIALOGUE_STEP_INVOKING_PATTERNS.get(menu_step_function.__name__)} "
                              f"{DIALOGUE_STEP_INVOKING_PATTERNS}")
-                return 'flop', {}
+                return 'flop', {'terminate_menu': True}
 
             message_to_send, extra_info = menu_step_function(*args, **kwargs)
 
