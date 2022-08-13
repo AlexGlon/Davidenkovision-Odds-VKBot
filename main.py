@@ -161,20 +161,11 @@ for event in longpoll.listen():
             #     else:
             #         bets_open = True
             #
-            # elif request.lower() == "ставки":
-            #     write_msg(event.user_id, show_entries.entry_iter(bet=True))
-            #
             # elif request.lower() == "удалить ставку":
             #     if bets_open:
             #         delete_bets.entry_point(event.user_id, longpoll, vk)
             #     else:
             #         write_msg(event.user_id, "Ставки закрыты и удалить их нельзя!")
-            #
-            # elif request.lower() == "ставка":
-            #     if bets_open:
-            #         accept_bet.entry_point(event.user_id, longpoll, vk)
-            #     else:
-            #         write_msg(event.user_id, "Ставки закрыты и сделать их нельзя!")
             #
             # # easter egg replies
             # elif request.lower() == "скажи когда":
