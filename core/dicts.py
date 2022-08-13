@@ -25,3 +25,7 @@ NEXT_DIALOGUE_STEP_HANDLERS = {
     get_user_bets_history: None,
     validate_and_accept_incoming_bet: None,
 }
+
+SKIPPING_NEXT_DIALOGUE_STEP_HANDLERS = {
+    get_bet_category_to_bet_on: validate_and_accept_incoming_bet,
+}

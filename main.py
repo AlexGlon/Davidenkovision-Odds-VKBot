@@ -12,7 +12,11 @@ from vk_api.longpoll import (
     VkLongPoll,
 )
 
-from core.dicts import FIRST_DIALOGUE_STEPS, NEXT_DIALOGUE_STEP_HANDLERS
+from core.dicts import (
+    FIRST_DIALOGUE_STEPS,
+    NEXT_DIALOGUE_STEP_HANDLERS,
+    SKIPPING_NEXT_DIALOGUE_STEP_HANDLERS,
+)
 from core.dotenv_variables import MINUTES_PER_BACKUP, TOKEN
 
 # a dictionary that contains information about user's last visited menu
@@ -63,14 +67,19 @@ def write_msg_and_handle_user_states(user_id: int,
 
     write_msg(user_id, message_to_send)
 
+    if new_extra_info.get('terminate_menu'):
+        next_step = None
+    elif new_extra_info.get('skipped_menu_step'):
+        next_step = SKIPPING_NEXT_DIALOGUE_STEP_HANDLERS[current_step_function]
+    else:
+        next_step = NEXT_DIALOGUE_STEP_HANDLERS[current_step_function]
+
     return {
         'extra_info': new_extra_info
-        if not new_extra_info.get('terminate_menu')
+        if next_step
         else {},
 
-        'next_step': NEXT_DIALOGUE_STEP_HANDLERS[current_step_function]
-        if not new_extra_info.get('terminate_menu')
-        else None,
+        'next_step': next_step,
 
         'last_message_timestamp': datetime.datetime.now()
     }

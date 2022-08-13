@@ -51,7 +51,8 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
                 'FROM balances ' \
                 'LEFT JOIN balances_contests bc on balances.balance_id = bc.balance_id ' \
                 f'WHERE user_id = {user_id} ' \
-                f'AND contest_id in {contests_to_bet_on};'
+                f'AND contest_id in ' \
+                f'{contests_to_bet_on if len(categories) > 1 else "(" + str(contests_to_bet_on[0]) + ")"};'
 
     # TODO: handle edge case when a sister contest has been opened after other contests
     #  and user already has balances for them?
@@ -94,27 +95,30 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
     if current_points_on_balance == 0:
         return NO_POINTS_TO_SPEND, {'terminate_menu': True}
 
-    # TODO
-    if len(categories) == 1:
-        pass
-        # response, extra_info = get_bet_statuses_to_show(invoking_message=str(categories[0][1]))
+    extra_info = {
+        'balance_id': balance_id,
+        'categories_listed_number': categories_to_bet_on_listed_number,
+        'category_ids': categories_to_bet_on,
+        'contest_ids': contests_to_bet_on,
+        'current_points_on_balance': current_points_on_balance,
+    }
 
-        # return response, {'terminate_menu': True}
+    if len(categories) == 1:
+        response, new_extra_info =  get_entry_to_bet_on(
+            invoking_message=str(categories[0][1]),
+            current_extra_info=extra_info,
+            only_one_category=True,
+        )
+        new_extra_info['skipped_menu_step'] = True
+
+        return response, new_extra_info
 
     response = SELECT_CATEGORY_TO_PLACE_BETS_ON
 
     for category in categories:
         response += f"{category[0]}. {category[3]} {category[4] + ' ' if category[4] else ''}{category[5]}\n"
 
-    return \
-        response, \
-        {
-            'balance_id': balance_id,
-            'categories_listed_number': categories_to_bet_on_listed_number,
-            'category_ids': categories_to_bet_on,
-            'contest_ids': contests_to_bet_on,
-            'current_points_on_balance': current_points_on_balance,
-        }
+    return response, extra_info
 
 
 @menu_decorator()
@@ -123,14 +127,19 @@ def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
     to this betting category for user to pick for further bet placing."""
 
     extra_info = kwargs.get('current_extra_info')
-    valid_categories = extra_info.get('categories_listed_number', ())
     category_id = int(kwargs.get('invoking_message'))
+    only_one_category = kwargs.get('only_one_category')
 
-    if category_id not in valid_categories:
+    valid_categories = extra_info.get('categories_listed_number', ())
+
+    if category_id not in valid_categories and not only_one_category:
         return INVALID_CATEGORY_TO_PLACE_BETS_ON, {'terminate_menu': True}
 
-    # categories listed number always goes in the ascending format
-    db_category_id = extra_info.get('category_ids')[category_id - 1]
+    if not only_one_category:
+        # categories listed number always goes in the ascending format
+        db_category_id = extra_info.get('category_ids')[category_id - 1]
+    else:
+        db_category_id = category_id
 
     statement = 'SELECT row_number() OVER (ORDER BY entries.entry_id), entries.entry_id, ' \
                 'c2.name, year_prefix, artist, title, ' \
@@ -152,7 +161,11 @@ def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
     extra_info['entries_to_bet_on'] = tuple([entry[1] for entry in entries])
     extra_info['entries_to_bet_on_listed_number'] = tuple([entry[0] for entry in entries])
     extra_info['selected_category'] = db_category_id
-    extra_info['selected_contest'] = extra_info.get('contest_ids')[category_id - 1]
+
+    if not only_one_category:
+        extra_info['selected_contest'] = extra_info.get('contest_ids')[category_id - 1]
+    else:
+        extra_info['selected_contest'] = extra_info.get('contest_ids')[0]
 
     response = SELECT_ENTRY_TO_PLACE_BETS_ON
 
