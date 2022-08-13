@@ -8,8 +8,11 @@ from core.db_connection import conn, cur
 from core.dotenv_variables import COEFFICIENT_OBSCURITY
 from core.menu_step_decorator import menu_decorator
 from core.response_strings import (
+    BET_PLACED_SUCCESSFULLY,
     INVALID_CATEGORY_TO_PLACE_BETS_ON,
+    INVALID_INPUT_WHILE_PLACING_A_BET,
     NO_CATEGORIES_TO_PLACE_BETS_ON,
+    NO_POINTS_TO_SPEND,
     SELECT_CATEGORY_TO_PLACE_BETS_ON,
     SELECT_ENTRY_TO_PLACE_BETS_ON,
 )
@@ -40,16 +43,9 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
     if len(categories) == 0:
         return NO_CATEGORIES_TO_PLACE_BETS_ON, {'terminate_menu': True}
 
-    # TODO
-    if len(categories) == 1:
-        pass
-        # response, extra_info = get_bet_statuses_to_show(invoking_message=str(categories[0][1]))
-
-        # return response, {'terminate_menu': True}
-
     categories_to_bet_on = tuple([category[1] for category in categories])
     categories_to_bet_on_listed_number = tuple([category[0] for category in categories])
-    contests_to_bet_on = tuple(set([category[2] for category in categories]))
+    contests_to_bet_on = tuple([category[2] for category in categories])
 
     statement = 'SELECT user_id, total, balances.balance_id, contest_id ' \
                 'FROM balances ' \
@@ -89,8 +85,21 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
         conn.commit()
         logging.info(f"Created balance->contest entries for balance {balance_id} and contests {contests_to_bet_on}")
 
+        current_points_on_balance = 100
+
     else:
         balance_id = balances[0][2]
+        current_points_on_balance = balances[0][1]
+
+    if current_points_on_balance == 0:
+        return NO_POINTS_TO_SPEND, {'terminate_menu': True}
+
+    # TODO
+    if len(categories) == 1:
+        pass
+        # response, extra_info = get_bet_statuses_to_show(invoking_message=str(categories[0][1]))
+
+        # return response, {'terminate_menu': True}
 
     response = SELECT_CATEGORY_TO_PLACE_BETS_ON
 
@@ -104,6 +113,7 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
             'categories_listed_number': categories_to_bet_on_listed_number,
             'category_ids': categories_to_bet_on,
             'contest_ids': contests_to_bet_on,
+            'current_points_on_balance': current_points_on_balance,
         }
 
 
@@ -138,6 +148,12 @@ def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
     cur.execute(statement)
     entries = cur.fetchall()
 
+    extra_info['coefficients'] = tuple([coefficient_calculation(entry[6]) for entry in entries])
+    extra_info['entries_to_bet_on'] = tuple([entry[1] for entry in entries])
+    extra_info['entries_to_bet_on_listed_number'] = tuple([entry[0] for entry in entries])
+    extra_info['selected_category'] = db_category_id
+    extra_info['selected_contest'] = extra_info.get('contest_ids')[category_id - 1]
+
     response = SELECT_ENTRY_TO_PLACE_BETS_ON
 
     for entry in entries:
@@ -146,18 +162,43 @@ def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
                     f"{entry[4]} -- {entry[5]}" \
                     f"{' | ' + str(coefficient_calculation(entry[6])) if not COEFFICIENT_OBSCURITY else ''}\n"
 
-    # TODO
-    return response, {}
+    return response, {**extra_info}
 
 
-# TODO: input validation + db entry
 @menu_decorator()
 def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
+    """Method that validates the amount of points to bet on an entry
+    and chosen entry ID, inserting a DB record after that."""
 
-    return '', {}
+    extra_info = kwargs.get('current_extra_info')
+    selected_entry_id, points_to_spend = kwargs.get('invoking_message', '-999 -999').split()
 
+    current_points = extra_info.get('current_points_on_balance', '-999')
+    valid_entries = extra_info.get('entries_to_bet_on_listed_number', ())
 
-# TODO: check if the time when this bet has been posted it not greater than the deadline
+    if (int(selected_entry_id) not in valid_entries) \
+            or (int(points_to_spend) > current_points or int(points_to_spend) <= 0):
+        return INVALID_INPUT_WHILE_PLACING_A_BET, {'terminate_menu': True}
+
+    betting_category_id = extra_info.get('selected_category')
+    coefficient = extra_info.get('coefficients')[int(selected_entry_id) - 1]
+    contest_id = extra_info.get('selected_contest')
+    entry_id = extra_info.get('entries_to_bet_on')[int(selected_entry_id) - 1]
+
+    user_id = kwargs.get('user_id')
+
+    statement = 'INSERT INTO bets (user_id, points, coefficient, betting_category_id, contest_id, entry_id) ' \
+                f'VALUES ({user_id}, {points_to_spend}, {coefficient}, ' \
+                f'{betting_category_id}, {contest_id}, {entry_id});'
+
+    cur.execute(statement)
+    conn.commit()
+    logging.info(f"Bet has been placed by user {user_id}: "
+                 f"betting category {betting_category_id} | entry {entry_id} | points ")
+    response = BET_PLACED_SUCCESSFULLY
+
+    return response, {}
+
 
 # =====================================================================================================
 #                                              OLD CODE

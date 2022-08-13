@@ -1,4 +1,4 @@
-from bets.accept_bet import get_bet_category_to_bet_on, get_entry_to_bet_on
+from bets.accept_bet import get_bet_category_to_bet_on, get_entry_to_bet_on, validate_and_accept_incoming_bet
 from bets.show_current_statuses import get_bet_statuses_to_show, get_category_to_show_bet_statuses
 from show_bets import get_current_contests_bets_history, get_user_bets_history
 from show_entries import get_contest_to_show_entries, get_entries_to_show
@@ -21,7 +21,7 @@ NEXT_DIALOGUE_STEP_HANDLERS = {
     get_contest_to_show_entries: get_entries_to_show,
     get_current_contests_bets_history: None,
     get_entries_to_show: None,
-    # TODO
-    get_entry_to_bet_on: None,
+    get_entry_to_bet_on: validate_and_accept_incoming_bet,
     get_user_bets_history: None,
+    validate_and_accept_incoming_bet: None,
 }
