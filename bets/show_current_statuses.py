@@ -15,16 +15,16 @@ from utils.calculate_stats import coefficient_calculation
 def get_category_to_show_bet_statuses(**kwargs):
     """Method that fetches a list of all ongoing betting categories."""
 
-    statement = 'SELECT row_number() OVER (ORDER BY betting_categories.betting_category_id), betting_category_id, ' \
-                'c.name, ct.name, bct.name ' \
-                'FROM betting_categories ' \
-                'FULL JOIN betting_category_types bct on bct.type_id = betting_categories.category_type ' \
-                'LEFT JOIN contests c on c.contest_id = betting_categories.contest_id ' \
-                'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
-                'WHERE ongoing = TRUE ' \
-                f'{"AND c.deadline_date < now()" if COEFFICIENT_OBSCURITY else ""};'
+    query = 'SELECT row_number() OVER (ORDER BY betting_categories.betting_category_id), betting_category_id, ' \
+            'c.name, ct.name, bct.name ' \
+            'FROM betting_categories ' \
+            'FULL JOIN betting_category_types bct on bct.type_id = betting_categories.category_type ' \
+            'LEFT JOIN contests c on c.contest_id = betting_categories.contest_id ' \
+            'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
+            'WHERE ongoing = TRUE ' \
+            f'{"AND c.deadline_date < now()" if COEFFICIENT_OBSCURITY else ""};'
 
-    cur.execute(statement)
+    cur.execute(query)
     categories = cur.fetchall()
 
     if len(categories) == 0:
@@ -53,16 +53,16 @@ def get_bet_statuses_to_show(**kwargs):
 
     category_id = kwargs.get('invoking_message')
 
-    statement = 'SELECT row_number() OVER (ORDER BY coefficient DESC), ' \
-                'c.name, e.year_prefix, e.artist, e.title, ' \
-                'coefficient ' \
-                'FROM entries_status ' \
-                'LEFT JOIN entries e on e.entry_id = entries_status.entry_id ' \
-                'LEFT JOIN countries c on e.country_id = c.country_id ' \
-                f'WHERE betting_category_id = {category_id} ' \
-                'ORDER BY coefficient DESC;'
+    query = 'SELECT row_number() OVER (ORDER BY coefficient DESC), ' \
+            'c.name, e.year_prefix, e.artist, e.title, ' \
+            'coefficient ' \
+            'FROM entries_status ' \
+            'LEFT JOIN entries e on e.entry_id = entries_status.entry_id ' \
+            'LEFT JOIN countries c on e.country_id = c.country_id ' \
+            f'WHERE betting_category_id = {category_id} ' \
+            'ORDER BY coefficient DESC;'
 
-    cur.execute(statement)
+    cur.execute(query)
     entries = cur.fetchall()
 
     if len(entries) == 0:

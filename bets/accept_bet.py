@@ -29,15 +29,15 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
     user_id = kwargs.get('user_id')
 
     # TODO: do we need deadline_date in WHERE block here?
-    statement = 'SELECT row_number() OVER (ORDER BY betting_categories.betting_category_id), betting_category_id, ' \
-                'c.contest_id, c.name, ct.name, bct.name ' \
-                'FROM betting_categories ' \
-                'FULL JOIN betting_category_types bct on bct.type_id = betting_categories.category_type ' \
-                'LEFT JOIN contests c on c.contest_id = betting_categories.contest_id ' \
-                'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
-                'WHERE accepts_bets = TRUE;'
+    query = 'SELECT row_number() OVER (ORDER BY betting_categories.betting_category_id), betting_category_id, ' \
+            'c.contest_id, c.name, ct.name, bct.name ' \
+            'FROM betting_categories ' \
+            'FULL JOIN betting_category_types bct on bct.type_id = betting_categories.category_type ' \
+            'LEFT JOIN contests c on c.contest_id = betting_categories.contest_id ' \
+            'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
+            'WHERE accepts_bets = TRUE;'
 
-    cur.execute(statement)
+    cur.execute(query)
     categories = cur.fetchall()
 
     if len(categories) == 0:
@@ -47,27 +47,27 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
     categories_to_bet_on_listed_number = tuple([category[0] for category in categories])
     contests_to_bet_on = tuple([category[2] for category in categories])
 
-    statement = 'SELECT user_id, total, balances.balance_id, contest_id ' \
-                'FROM balances ' \
-                'LEFT JOIN balances_contests bc on balances.balance_id = bc.balance_id ' \
-                f'WHERE user_id = {user_id} ' \
-                f'AND contest_id in ' \
-                f'{contests_to_bet_on if len(categories) > 1 else "(" + str(contests_to_bet_on[0]) + ")"};'
+    query = 'SELECT user_id, total, balances.balance_id, contest_id ' \
+            'FROM balances ' \
+            'LEFT JOIN balances_contests bc on balances.balance_id = bc.balance_id ' \
+            f'WHERE user_id = {user_id} ' \
+            f'AND contest_id in ' \
+            f'{contests_to_bet_on if len(categories) > 1 else "(" + str(contests_to_bet_on[0]) + ")"};'
 
     # TODO: handle edge case when a sister contest has been opened after other contests
     #  and user already has balances for them?
 
-    cur.execute(statement)
+    cur.execute(query)
     balances = cur.fetchall()
 
     if len(balances) == 0:
         # TODO: consolidate this into a DB-side transaction?
 
-        statement = 'INSERT INTO balances (user_id, total, balance_id) ' \
-                    f'VALUES ({user_id}, 100, DEFAULT) ' \
-                    f'RETURNING balance_id;'
+        query = 'INSERT INTO balances (user_id, total, balance_id) ' \
+                f'VALUES ({user_id}, 100, DEFAULT) ' \
+                f'RETURNING balance_id;'
 
-        cur.execute(statement)
+        cur.execute(query)
         balance_id = cur.fetchone()[0]
         conn.commit()
         logging.info(f"Created balance {balance_id} for user {user_id}")
@@ -78,10 +78,10 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
         # and the first time this user checks this menu if after the semifinals
         # he will have a balance created only for the Grand Final
         for contest in contests_to_bet_on:
-            statement = 'INSERT INTO balances_contests (balance_id, contest_id) ' \
-                        f'VALUES ({balance_id}, {contest});'
+            query = 'INSERT INTO balances_contests (balance_id, contest_id) ' \
+                    f'VALUES ({balance_id}, {contest});'
 
-            cur.execute(statement)
+            cur.execute(query)
 
         conn.commit()
         logging.info(f"Created balance->contest entries for balance {balance_id} and contests {contests_to_bet_on}")
@@ -138,20 +138,20 @@ def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
     # categories listed number always goes in the ascending format
     db_category_id = extra_info.get('category_ids')[selected_category - 1]
 
-    statement = 'SELECT row_number() OVER (ORDER BY entries.entry_id), entries.entry_id, ' \
-                'c2.name, year_prefix, artist, title, ' \
-                'coefficient ' \
-                'FROM entries ' \
-                'LEFT JOIN countries c2 on c2.country_id = entries.country_id ' \
-                'LEFT JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
-                'LEFT JOIN contests c on c.contest_id = ec.contest_id ' \
-                'LEFT JOIN betting_categories bc on c.contest_id = bc.contest_id ' \
-                'LEFT JOIN entries_status es on ' \
-                '(bc.betting_category_id = es.betting_category_id AND entries.entry_id = es.entry_id) ' \
-                f'WHERE bc.betting_category_id = {db_category_id} ' \
-                'ORDER BY entries.entry_id;'
+    query = 'SELECT row_number() OVER (ORDER BY entries.entry_id), entries.entry_id, ' \
+            'c2.name, year_prefix, artist, title, ' \
+            'coefficient ' \
+            'FROM entries ' \
+            'LEFT JOIN countries c2 on c2.country_id = entries.country_id ' \
+            'LEFT JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
+            'LEFT JOIN contests c on c.contest_id = ec.contest_id ' \
+            'LEFT JOIN betting_categories bc on c.contest_id = bc.contest_id ' \
+            'LEFT JOIN entries_status es on ' \
+            '(bc.betting_category_id = es.betting_category_id AND entries.entry_id = es.entry_id) ' \
+            f'WHERE bc.betting_category_id = {db_category_id} ' \
+            'ORDER BY entries.entry_id;'
 
-    cur.execute(statement)
+    cur.execute(query)
     entries = cur.fetchall()
 
     extra_info['coefficients'] = tuple([coefficient_calculation(entry[6]) for entry in entries])
@@ -194,11 +194,11 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
 
     user_id = kwargs.get('user_id')
 
-    statement = 'INSERT INTO bets (user_id, points, coefficient, betting_category_id, contest_id, entry_id) ' \
-                f'VALUES ({user_id}, {points_to_spend}, {coefficient}, ' \
-                f'{betting_category_id}, {contest_id}, {entry_id});'
+    query = 'INSERT INTO bets (user_id, points, coefficient, betting_category_id, contest_id, entry_id) ' \
+            f'VALUES ({user_id}, {points_to_spend}, {coefficient}, ' \
+            f'{betting_category_id}, {contest_id}, {entry_id});'
 
-    cur.execute(statement)
+    cur.execute(query)
     conn.commit()
     logging.info(f"Bet has been placed by user {user_id}: "
                  f"betting category {betting_category_id} | entry {entry_id} | {points_to_spend} points")

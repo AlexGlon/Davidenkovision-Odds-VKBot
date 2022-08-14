@@ -15,14 +15,14 @@ import flags
 def get_contest_to_show_entries(**kwargs):
     """Method that fetches a list of all ongoing contests."""
 
-    statement = 'SELECT row_number() OVER (ORDER BY contest_id), contest_id, contests.name, ct.name ' \
-                'FROM contests ' \
-                'FULL JOIN contests_types ct ' \
-                'ON ct.type_id = contests.type ' \
-                'WHERE ongoing = TRUE ' \
-                'ORDER BY contest_id;'
+    query = 'SELECT row_number() OVER (ORDER BY contest_id), contest_id, contests.name, ct.name ' \
+            'FROM contests ' \
+            'FULL JOIN contests_types ct ' \
+            'ON ct.type_id = contests.type ' \
+            'WHERE ongoing = TRUE ' \
+            'ORDER BY contest_id;'
 
-    cur.execute(statement)
+    cur.execute(query)
     contests = cur.fetchall()
 
     if len(contests) == 0:
@@ -47,14 +47,14 @@ def get_entries_to_show(**kwargs):
 
     contest_id = kwargs.get('invoking_message')
 
-    statement = 'SELECT row_number() OVER (ORDER BY entries.entry_id), c.name, year_prefix, artist, title ' \
-                'FROM entries ' \
-                'INNER JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
-                'INNER JOIN countries c on c.country_id = entries.country_id ' \
-                f'WHERE contest_id = {contest_id} ' \
-                'ORDER BY entries.entry_id;'
+    query = 'SELECT row_number() OVER (ORDER BY entries.entry_id), c.name, year_prefix, artist, title ' \
+            'FROM entries ' \
+            'INNER JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
+            'INNER JOIN countries c on c.country_id = entries.country_id ' \
+            f'WHERE contest_id = {contest_id} ' \
+            'ORDER BY entries.entry_id;'
 
-    cur.execute(statement)
+    cur.execute(query)
     entries = cur.fetchall()
 
     if len(entries) == 0:
