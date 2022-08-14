@@ -112,6 +112,16 @@ def get_bets_eligible_for_deletion(**kwargs) -> tuple[str, dict]:
     extra_info['entries'] = tuple(extra_info['entries'])
     extra_info['bet_creation_dates'] = tuple(extra_info['bet_creation_dates'])
 
+    if len(bets) == 1:
+        response, new_extra_info = get_bet_cancellation_confirmation(
+            invoking_message='1',
+            current_extra_info=extra_info,
+            only_one_bet=True,
+        )
+        new_extra_info['skipped_menu_step'] = True
+
+        return response, new_extra_info
+
     return response, extra_info
 
 
@@ -121,10 +131,12 @@ def get_bet_cancellation_confirmation(**kwargs) -> tuple[str, dict]:
     and asks for user's confirmation."""
 
     extra_info = kwargs.get('current_extra_info')
+    only_one_bet = kwargs.get('only_one_bet')
     selected_bet = int(kwargs.get('invoking_message'))
+
     existing_bets = extra_info.get('bet_listed_numbers')
 
-    if selected_bet not in existing_bets:
+    if selected_bet not in existing_bets and not only_one_bet:
         return INVALID_BET_TO_CANCEL_NUMBER, {'terminate_menu': True}
 
     extra_info['selected_bet_listed_number'] = selected_bet
@@ -136,7 +148,7 @@ def get_bet_cancellation_confirmation(**kwargs) -> tuple[str, dict]:
 
     response = CONFIRM_BET_CANCELLATION
 
-    response += f"{entry_info['contest_name']}" \
+    response += f"{selected_bet}. {entry_info['contest_name']}" \
                 f"{' ' + entry_info['contest_type'] if entry_info['contest_type'] else ''} " \
                 f"{entry_info['betting_category']}\n" \
                 f"{country_dict.get(entry_info['country'])} {entry_info['country']}" \
@@ -190,7 +202,7 @@ def cancel_selected_bet(**kwargs) -> tuple[str, dict]:
 
     conn.commit()
     logging.info(f"Bet {bet_to_cancel_id} has been canceled by user {user_id}: "
-                 f"betting category {betting_category_id} | entry {entry_id} | {points} points ")
+                 f"betting category {betting_category_id} | entry {entry_id} | {-points} points ")
 
     return BET_CANCELLATION_SUCCESS, {}
 
