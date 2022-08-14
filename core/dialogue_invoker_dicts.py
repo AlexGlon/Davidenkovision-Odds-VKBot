@@ -3,6 +3,7 @@
 
 DIALOGUE_STEP_INVOKING_PATTERNS = {
     'get_bet_statuses_to_show': r'^\d+$',
+    'get_bet_cancellation_confirmation': r'^\d+$',
     'get_bet_category_to_bet_on': r'^ставка$',
     'get_bets_eligible_for_deletion': r'^отменить ставку$',
     'get_category_to_show_bet_statuses': r'^ставки$',

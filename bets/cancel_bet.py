@@ -10,8 +10,14 @@ from bets import accept_bet
 from core.db_connection import cur
 from core.menu_step_decorator import menu_decorator
 from core.response_strings import (
+    BET_CREATION_DATE,
+    COEFFICIENT,
+    CONFIRM_BET_CANCELLATION,
+    HIDDEN_COEFFICIENT,
+    INVALID_BET_TO_CANCEL_NUMBER,
     NO_BETS_TO_CANCEL,
-    SELECT_BET_TO_CANCEL, POINTS, HIDDEN_COEFFICIENT, COEFFICIENT, BET_CREATION_DATE,
+    POINTS,
+    SELECT_BET_TO_CANCEL,
 )
 
 
@@ -49,25 +55,27 @@ def get_bets_eligible_for_deletion(**kwargs) -> tuple[str, dict]:
     # TODO: handle len(bets) == 1
 
     extra_info = {
-        'bet_listed_number': [],
-        'bet_id': [],
+        'bet_listed_numbers': [],
+        'bet_ids': [],
         'points': [],
         'coefficients': [],
         'betting_category_ids': [],
         'contest_ids': [],
         'entry_ids': [],
         'entries': [],
+        'bet_creation_dates': [],
     }
     response = SELECT_BET_TO_CANCEL
 
     for bet in bets:
-        extra_info['bet_listed_number'].append(bet[0])
-        extra_info['bet_id'].append(bet[1])
+        extra_info['bet_listed_numbers'].append(bet[0])
+        extra_info['bet_ids'].append(bet[1])
         extra_info['points'].append(bet[2])
         extra_info['coefficients'].append(bet[3])
         extra_info['betting_category_ids'].append(bet[4])
         extra_info['contest_ids'].append(bet[5])
         extra_info['entry_ids'].append(bet[6])
+        extra_info['bet_creation_dates'].append(bet[14])
 
         entry_info = {
             'contest_name': bet[7],
@@ -90,25 +98,58 @@ def get_bets_eligible_for_deletion(**kwargs) -> tuple[str, dict]:
                     f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if COEFFICIENT_OBSCURITY else bet[3]}\n" \
                     f"{BET_CREATION_DATE}: {bet[14]}\n\n"
 
-    extra_info['bet_listed_number'] = tuple(extra_info['bet_listed_number'])
-    extra_info['bet_id'] = tuple(extra_info['bet_id'])
+    extra_info['bet_listed_numbers'] = tuple(extra_info['bet_listed_numbers'])
+    extra_info['bet_ids'] = tuple(extra_info['bet_ids'])
     extra_info['points'] = tuple(extra_info['points'])
     extra_info['coefficients'] = tuple(extra_info['coefficients'])
     extra_info['betting_category_ids'] = tuple(extra_info['betting_category_ids'])
     extra_info['contest_ids'] = tuple(extra_info['contest_ids'])
     extra_info['entry_ids'] = tuple(extra_info['entry_ids'])
     extra_info['entries'] = tuple(extra_info['entries'])
+    extra_info['bet_creation_dates'] = tuple(extra_info['bet_creation_dates'])
 
     return response, extra_info
 
 
 @menu_decorator()
 def get_bet_cancellation_confirmation(**kwargs) -> tuple[str, dict]:
-    return '', {}
+    """Validates user's bet to cancel choice
+    and asks for user's confirmation."""
+
+    extra_info = kwargs.get('current_extra_info')
+    selected_bet = int(kwargs.get('invoking_message'))
+    existing_bets = extra_info.get('bet_listed_numbers')
+
+    if selected_bet not in existing_bets:
+        return INVALID_BET_TO_CANCEL_NUMBER, {'terminate_menu': True}
+
+    extra_info['selected_bet_id'] = extra_info.get('bet_ids')[selected_bet - 1]
+
+    bet_creation_date = extra_info.get('bet_creation_dates')[selected_bet - 1]
+    coefficient = extra_info.get('coefficients')[selected_bet - 1]
+    entry_info = extra_info.get('entries')[selected_bet - 1]
+    points = extra_info.get('points')[selected_bet - 1]
+
+    response = CONFIRM_BET_CANCELLATION
+
+    response += f"{entry_info['contest_name']}" \
+                f"{' ' + entry_info['contest_type'] if entry_info['contest_type'] else ''} " \
+                f"{entry_info['betting_category']}\n" \
+                f"{country_dict.get(entry_info['country'])} {entry_info['country']}" \
+                f"{' ' + entry_info['year_prefix'] + ' |' if entry_info['year_prefix'] else ' |'} " \
+                f"{entry_info['artist']} -- {entry_info['title']}\n" \
+                f"{POINTS}: {int(points)}\n" \
+                f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if COEFFICIENT_OBSCURITY else coefficient}\n" \
+                f"{BET_CREATION_DATE}: {bet_creation_date}\n\n"
+
+    return response, extra_info
 
 
 @menu_decorator()
 def cancel_selected_bet(**kwargs) -> tuple[str, dict]:
+    """Validates user's confirmation choice
+    and cancels the bet (if a confirmation is given)."""
+
     return '', {}
 
 
