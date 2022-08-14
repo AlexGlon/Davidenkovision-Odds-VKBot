@@ -1,4 +1,6 @@
 import json
+import logging
+
 from vk_api.longpoll import VkEventType
 
 import bets.show_bets as show_bets
@@ -7,9 +9,11 @@ from flags import country_dict
 from utils import calculate_stats
 from bets import accept_bet
 
-from core.db_connection import cur
+from core.db_connection import conn, cur
 from core.menu_step_decorator import menu_decorator
 from core.response_strings import (
+    BET_CANCELLATION_ABORTED,
+    BET_CANCELLATION_SUCCESS,
     BET_CREATION_DATE,
     COEFFICIENT,
     CONFIRM_BET_CANCELLATION,
@@ -123,7 +127,7 @@ def get_bet_cancellation_confirmation(**kwargs) -> tuple[str, dict]:
     if selected_bet not in existing_bets:
         return INVALID_BET_TO_CANCEL_NUMBER, {'terminate_menu': True}
 
-    extra_info['selected_bet_id'] = extra_info.get('bet_ids')[selected_bet - 1]
+    extra_info['selected_bet_listed_number'] = selected_bet
 
     bet_creation_date = extra_info.get('bet_creation_dates')[selected_bet - 1]
     coefficient = extra_info.get('coefficients')[selected_bet - 1]
@@ -150,7 +154,45 @@ def cancel_selected_bet(**kwargs) -> tuple[str, dict]:
     """Validates user's confirmation choice
     and cancels the bet (if a confirmation is given)."""
 
-    return '', {}
+    confirmation_message = int(kwargs.get('invoking_message'))
+    extra_info = kwargs.get('current_extra_info')
+    user_id = kwargs.get('user_id')
+
+    selected_bet_listed_number = extra_info.get('selected_bet_listed_number')
+
+    if confirmation_message != selected_bet_listed_number:
+        return BET_CANCELLATION_ABORTED, {'terminate_menu': True}
+
+    # add a cancelled bet to `bets` table
+
+    bet_to_cancel_id = extra_info.get('bet_ids')[confirmation_message - 1]
+    betting_category_id = extra_info.get('betting_category_ids')[confirmation_message - 1]
+    coefficient = extra_info.get('coefficients')[confirmation_message - 1]
+    contest_id = extra_info.get('contest_ids')[confirmation_message - 1]
+    entry_id = extra_info.get('entry_ids')[confirmation_message - 1]
+    points = -extra_info.get('points')[confirmation_message - 1]
+
+    query = 'INSERT INTO bets (user_id, points, coefficient, betting_category_id, contest_id, entry_id) ' \
+            f'VALUES ({user_id}, {points}, {coefficient}, ' \
+            f'{betting_category_id}, {contest_id}, {entry_id}) ' \
+            f'RETURNING id;'
+
+    cur.execute(query)
+
+    # add entries for cancelled bets into `bets_cancelled` table
+
+    freshly_cancelled_bet_id = cur.fetchone()[0]
+
+    query = 'INSERT INTO bets_cancelled (bet_id) ' \
+            f'VALUES ({bet_to_cancel_id}), ({freshly_cancelled_bet_id});'
+
+    cur.execute(query)
+
+    conn.commit()
+    logging.info(f"Bet {bet_to_cancel_id} has been canceled by user {user_id}: "
+                 f"betting category {betting_category_id} | entry {entry_id} | {points} points ")
+
+    return BET_CANCELLATION_SUCCESS, {}
 
 
 # =====================================================================================================

@@ -2,6 +2,7 @@
 # that are valid for invoking a particular menu step
 
 DIALOGUE_STEP_INVOKING_PATTERNS = {
+    'cancel_selected_bet': r'^\d+$',
     'get_bet_statuses_to_show': r'^\d+$',
     'get_bet_cancellation_confirmation': r'^\d+$',
     'get_bet_category_to_bet_on': r'^ставка$',

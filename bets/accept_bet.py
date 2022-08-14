@@ -208,10 +208,9 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
     cur.execute(statement)
     conn.commit()
     logging.info(f"Bet has been placed by user {user_id}: "
-                 f"betting category {betting_category_id} | entry {entry_id} | points ")
-    response = BET_PLACED_SUCCESSFULLY
+                 f"betting category {betting_category_id} | entry {entry_id} | {points_to_spend} points")
 
-    return response, {}
+    return BET_PLACED_SUCCESSFULLY, {}
 
 
 # =====================================================================================================
