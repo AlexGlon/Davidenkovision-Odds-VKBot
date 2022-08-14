@@ -24,23 +24,23 @@ def get_current_contests_bets_history(**kwargs):
     user_id = kwargs.get('user_id')
 
     # TODO: deprecate `bets.id` since it's not used anywhere down the line
-    statement = 'SELECT row_number() OVER (ORDER BY bets.id), bets.id, c.name, c.ongoing, ct.name, bct.name, ' \
-                'c2.name, e.year_prefix, e.artist, e.title, ' \
-                'bets.points, bets.coefficient, bets.date ' \
-                'FROM bets ' \
-                'LEFT JOIN contests c ON c.contest_id = bets.contest_id ' \
-                'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
-                'LEFT JOIN entries e on e.entry_id = bets.entry_id ' \
-                'LEFT JOIN countries c2 on c2.country_id = e.country_id ' \
-                'LEFT JOIN betting_categories bc on bc.betting_category_id = bets.betting_category_id ' \
-                'LEFT JOIN betting_category_types bct on bct.type_id = bc.category_type ' \
-                'FULL OUTER JOIN bets_cancelled b on bets.id = b.bet_id ' \
-                f'WHERE user_id = {user_id} ' \
-                'AND c.ongoing = TRUE ' \
-                'AND b.bet_id IS NULL ' \
-                'ORDER BY bets.id;'
+    query = 'SELECT row_number() OVER (ORDER BY bets.id), bets.id, c.name, c.ongoing, ct.name, bct.name, ' \
+            'c2.name, e.year_prefix, e.artist, e.title, ' \
+            'bets.points, bets.coefficient, bets.date ' \
+            'FROM bets ' \
+            'LEFT JOIN contests c ON c.contest_id = bets.contest_id ' \
+            'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
+            'LEFT JOIN entries e on e.entry_id = bets.entry_id ' \
+            'LEFT JOIN countries c2 on c2.country_id = e.country_id ' \
+            'LEFT JOIN betting_categories bc on bc.betting_category_id = bets.betting_category_id ' \
+            'LEFT JOIN betting_category_types bct on bct.type_id = bc.category_type ' \
+            'FULL OUTER JOIN bets_cancelled b on bets.id = b.bet_id ' \
+            f'WHERE user_id = {user_id} ' \
+            'AND c.ongoing = TRUE ' \
+            'AND b.bet_id IS NULL ' \
+            'ORDER BY bets.id;'
 
-    cur.execute(statement)
+    cur.execute(query)
     bets = cur.fetchall()
 
     if len(bets) == 0:
@@ -69,20 +69,20 @@ def get_user_bets_history(**kwargs):
     user_id = kwargs.get('user_id')
 
     # TODO: keep `bets.id` for future use (bet cancellation)
-    statement = 'SELECT row_number() OVER (ORDER BY bets.id), bets.id, c.name, c.ongoing, ct.name, bct.name, ' \
-                'c2.name, e.year_prefix, e.artist, e.title, ' \
-                'bets.points, bets.coefficient, bets.date ' \
-                'FROM bets ' \
-                'LEFT JOIN contests c ON c.contest_id = bets.contest_id ' \
-                'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
-                'LEFT JOIN entries e on e.entry_id = bets.entry_id ' \
-                'LEFT JOIN countries c2 on c2.country_id = e.country_id ' \
-                'LEFT JOIN betting_categories bc on bc.betting_category_id = bets.betting_category_id ' \
-                'LEFT JOIN betting_category_types bct on bct.type_id = bc.category_type ' \
-                f'WHERE user_id = {user_id} ' \
-                'ORDER BY bets.id;'
+    query = 'SELECT row_number() OVER (ORDER BY bets.id), bets.id, c.name, c.ongoing, ct.name, bct.name, ' \
+            'c2.name, e.year_prefix, e.artist, e.title, ' \
+            'bets.points, bets.coefficient, bets.date ' \
+            'FROM bets ' \
+            'LEFT JOIN contests c ON c.contest_id = bets.contest_id ' \
+            'LEFT JOIN contests_types ct on ct.type_id = c.type ' \
+            'LEFT JOIN entries e on e.entry_id = bets.entry_id ' \
+            'LEFT JOIN countries c2 on c2.country_id = e.country_id ' \
+            'LEFT JOIN betting_categories bc on bc.betting_category_id = bets.betting_category_id ' \
+            'LEFT JOIN betting_category_types bct on bct.type_id = bc.category_type ' \
+            f'WHERE user_id = {user_id} ' \
+            'ORDER BY bets.id;'
 
-    cur.execute(statement)
+    cur.execute(query)
     bets = cur.fetchall()
 
     if len(bets) == 0:
