@@ -162,12 +162,6 @@ for event in longpoll.listen():
             #     else:
             #         bets_open = True
             #
-            # elif request.lower() == "удалить ставку":
-            #     if bets_open:
-            #         delete_bets.entry_point(event.user_id, longpoll, vk)
-            #     else:
-            #         write_msg(event.user_id, "Ставки закрыты и удалить их нельзя!")
-            #
             # # easter egg replies
             # elif request.lower() == "скажи когда":
             #     write_msg(event.user_id, f" {flags.Belarus} КОГДААААААААААА")

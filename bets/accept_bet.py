@@ -104,8 +104,8 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
     }
 
     if len(categories) == 1:
-        response, new_extra_info =  get_entry_to_bet_on(
-            invoking_message=str(categories[0][1]),
+        response, new_extra_info = get_entry_to_bet_on(
+            invoking_message='1',
             current_extra_info=extra_info,
             only_one_category=True,
         )
@@ -127,19 +127,16 @@ def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
     to this betting category for user to pick for further bet placing."""
 
     extra_info = kwargs.get('current_extra_info')
-    category_id = int(kwargs.get('invoking_message'))
+    selected_category = int(kwargs.get('invoking_message'))
     only_one_category = kwargs.get('only_one_category')
 
     valid_categories = extra_info.get('categories_listed_number', ())
 
-    if category_id not in valid_categories and not only_one_category:
+    if selected_category not in valid_categories and not only_one_category:
         return INVALID_CATEGORY_TO_PLACE_BETS_ON, {'terminate_menu': True}
 
-    if not only_one_category:
-        # categories listed number always goes in the ascending format
-        db_category_id = extra_info.get('category_ids')[category_id - 1]
-    else:
-        db_category_id = category_id
+    # categories listed number always goes in the ascending format
+    db_category_id = extra_info.get('category_ids')[selected_category - 1]
 
     statement = 'SELECT row_number() OVER (ORDER BY entries.entry_id), entries.entry_id, ' \
                 'c2.name, year_prefix, artist, title, ' \
@@ -160,12 +157,8 @@ def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
     extra_info['coefficients'] = tuple([coefficient_calculation(entry[6]) for entry in entries])
     extra_info['entries_to_bet_on'] = tuple([entry[1] for entry in entries])
     extra_info['entries_to_bet_on_listed_number'] = tuple([entry[0] for entry in entries])
-    extra_info['selected_category'] = db_category_id
-
-    if not only_one_category:
-        extra_info['selected_contest'] = extra_info.get('contest_ids')[category_id - 1]
-    else:
-        extra_info['selected_contest'] = extra_info.get('contest_ids')[0]
+    extra_info['selected_category_id'] = db_category_id
+    extra_info['selected_contest_id'] = extra_info.get('contest_ids')[selected_category - 1]
 
     response = SELECT_ENTRY_TO_PLACE_BETS_ON
 
@@ -194,9 +187,9 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
             or (int(points_to_spend) > current_points or int(points_to_spend) <= 0):
         return INVALID_INPUT_WHILE_PLACING_A_BET, {'terminate_menu': True}
 
-    betting_category_id = extra_info.get('selected_category')
+    betting_category_id = extra_info.get('selected_category_id')
     coefficient = extra_info.get('coefficients')[int(selected_entry_id) - 1]
-    contest_id = extra_info.get('selected_contest')
+    contest_id = extra_info.get('selected_contest_id')
     entry_id = extra_info.get('entries_to_bet_on')[int(selected_entry_id) - 1]
 
     user_id = kwargs.get('user_id')
@@ -208,10 +201,9 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
     cur.execute(statement)
     conn.commit()
     logging.info(f"Bet has been placed by user {user_id}: "
-                 f"betting category {betting_category_id} | entry {entry_id} | points ")
-    response = BET_PLACED_SUCCESSFULLY
+                 f"betting category {betting_category_id} | entry {entry_id} | {points_to_spend} points")
 
-    return response, {}
+    return BET_PLACED_SUCCESSFULLY, {}
 
 
 # =====================================================================================================
