@@ -13,6 +13,7 @@ from core.response_strings import (
     NO_BETS_TO_SHOW,
     NO_BETS_TO_SHOW_FOR_CURRENT_CONTESTS,
     POINTS,
+    POINTS_RETURNED,
 )
 from flags import country_dict
 
@@ -54,7 +55,8 @@ def get_current_contests_bets_history(**kwargs):
     for bet in bets:
         response += f"{bet[0]}. {BET_CANCELLATION + new_line if bet[10] < 0 else ''}" \
                     f"{bet[2]} {bet[4] if {bet[4]} else ''}: {bet[5]}\n" \
-                    f"{country_dict.get(bet[6])}{' ' + bet[7] + ' |' if bet[7] else ''} {bet[8]} -- {bet[9]}\n" \
+                    f"{country_dict.get(bet[6])} {bet[6]}{' ' + bet[7] if bet[7] else ''} | " \
+                    f"{bet[8]} -- {bet[9]}\n" \
                     f"{POINTS}: {int(bet[10])}\n" \
                     f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if (COEFFICIENT_OBSCURITY and bet[3]) else bet[11]}\n" \
                     f"{BET_CREATION_DATE}: {bet[12]}\n\n"
@@ -94,10 +96,14 @@ def get_user_bets_history(**kwargs):
     new_line = '\n'
 
     for bet in bets:
+        country = bet[6]
+        points = int(bet[10])
+
         response += f"{bet[0]}. {BET_CANCELLATION + new_line if bet[10] < 0 else ''}" \
                     f"{bet[2]}{' ' + bet[4] if {bet[4]} else ''}: {bet[5]}\n" \
-                    f"{country_dict.get(bet[6])}{' ' + bet[7] + ' |' if bet[7] else ''} {bet[8]} -- {bet[9]}\n" \
-                    f"{POINTS}: {int(bet[10])}\n" \
+                    f"{country_dict.get(country)} {country}{' ' + bet[7] if bet[7] else ''} | " \
+                    f"{bet[8]} -- {bet[9]}\n" \
+                    f"{POINTS if points > 0 else POINTS_RETURNED}: {abs(points)}\n" \
                     f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if (COEFFICIENT_OBSCURITY and bet[3]) else bet[11]}\n" \
                     f"{BET_CREATION_DATE}: {bet[12]}\n\n"
 

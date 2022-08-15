@@ -72,7 +72,7 @@ def get_bet_statuses_to_show(**kwargs):
 
     for entry in entries:
         response += f"{entry[0]}. " \
-                    f"{country_dict.get(entry[1])} {entry[1]} {' ' + entry[2] + ' |' if entry[2] else ' |'} " \
+                    f"{country_dict.get(entry[1])} {entry[1]}{' ' + entry[2] if entry[2] else ''} | " \
                     f"{entry[3]} -- {entry[4]} | {coefficient_calculation(entry[5])}\n"
 
     return response, {}
