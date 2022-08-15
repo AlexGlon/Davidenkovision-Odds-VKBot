@@ -56,8 +56,6 @@ def get_bets_eligible_for_deletion(**kwargs) -> tuple[str, dict]:
     if len(bets) == 0:
         return NO_BETS_TO_CANCEL, {'terminate_menu': True}
 
-    # TODO: handle len(bets) == 1
-
     extra_info = {
         'bet_listed_numbers': [],
         'bet_ids': [],
@@ -96,7 +94,7 @@ def get_bets_eligible_for_deletion(**kwargs) -> tuple[str, dict]:
                     f"{' ' + entry_info['contest_type'] if entry_info['contest_type'] else ''} " \
                     f"{entry_info['betting_category']}\n" \
                     f"{country_dict.get(entry_info['country'])} {entry_info['country']}" \
-                    f"{' ' + entry_info['year_prefix'] + ' |' if entry_info['year_prefix'] else ' |'} " \
+                    f"{' ' + entry_info['year_prefix'] if entry_info['year_prefix'] else ''} | " \
                     f"{entry_info['artist']} -- {entry_info['title']}\n" \
                     f"{POINTS}: {int(bet[2])}\n" \
                     f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if COEFFICIENT_OBSCURITY else bet[3]}\n" \
@@ -152,7 +150,7 @@ def get_bet_cancellation_confirmation(**kwargs) -> tuple[str, dict]:
                 f"{' ' + entry_info['contest_type'] if entry_info['contest_type'] else ''} " \
                 f"{entry_info['betting_category']}\n" \
                 f"{country_dict.get(entry_info['country'])} {entry_info['country']}" \
-                f"{' ' + entry_info['year_prefix'] + ' |' if entry_info['year_prefix'] else ' |'} " \
+                f"{' ' + entry_info['year_prefix'] if entry_info['year_prefix'] else ''} | " \
                 f"{entry_info['artist']} -- {entry_info['title']}\n" \
                 f"{POINTS}: {int(points)}\n" \
                 f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if COEFFICIENT_OBSCURITY else coefficient}\n" \

@@ -64,7 +64,7 @@ def get_entries_to_show(**kwargs):
 
     for entry in entries:
         response += f"{entry[0]}. " \
-                    f"{flags.country_dict.get(entry[1])}{' ' + entry[2] + ' |' if entry[2] else ''} " \
+                    f"{flags.country_dict.get(entry[1])} {entry[1]}{' ' + entry[2] if entry[2] else ''} | " \
                     f"{entry[3]} -- {entry[4]}\n"
 
     return response, {}
