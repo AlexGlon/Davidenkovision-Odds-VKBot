@@ -15,6 +15,7 @@ from core.response_strings import (
     BET_CANCELLATION_ABORTED,
     BET_CANCELLATION_SUCCESS,
     BET_CREATION_DATE,
+    BETTING_CATEGORY_CLOSED_FOR_CANCELLING_BETS,
     COEFFICIENT,
     CONFIRM_BET_CANCELLATION,
     HIDDEN_COEFFICIENT,
@@ -181,6 +182,16 @@ def cancel_selected_bet(**kwargs) -> tuple[str, dict]:
     contest_id = extra_info.get('contest_ids')[confirmation_message - 1]
     entry_id = extra_info.get('entry_ids')[confirmation_message - 1]
     points = -extra_info.get('points')[confirmation_message - 1]
+
+    # checking if this betting category still accepts bets
+    query = 'SELECT accepts_bets ' \
+            'FROM betting_categories ' \
+            f'WHERE betting_category_id = {betting_category_id};'
+
+    cur.execute(query)
+
+    if not bool(cur.fetchall()[0][0]):
+        return BETTING_CATEGORY_CLOSED_FOR_CANCELLING_BETS, {'terminate_menu': True}
 
     query = 'INSERT INTO bets (user_id, points, coefficient, betting_category_id, contest_id, entry_id) ' \
             f'VALUES ({user_id}, {points}, {coefficient}, ' \

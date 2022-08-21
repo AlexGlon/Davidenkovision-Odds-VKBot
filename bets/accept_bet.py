@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import json
 import logging
 
@@ -8,7 +9,9 @@ from core.db_connection import conn, cur
 from core.dotenv_variables import COEFFICIENT_OBSCURITY
 from core.menu_step_decorator import menu_decorator
 from core.response_strings import (
+    BET_COEFFICIENT_HAS_BEEN_MODIFIED,
     BET_PLACED_SUCCESSFULLY,
+    BETTING_CATEGORY_CLOSED_FOR_PLACING_BETS,
     INVALID_CATEGORY_TO_PLACE_BETS_ON,
     INVALID_INPUT_WHILE_PLACING_A_BET,
     NO_CATEGORIES_TO_PLACE_BETS_ON,
@@ -101,6 +104,7 @@ def get_bet_category_to_bet_on(**kwargs) -> tuple[str, dict]:
         'category_ids': categories_to_bet_on,
         'contest_ids': contests_to_bet_on,
         'current_points_on_balance': current_points_on_balance,
+        'request_timestamp': datetime.now()
     }
 
     if len(categories) == 1:
@@ -188,11 +192,46 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
         return INVALID_INPUT_WHILE_PLACING_A_BET, {'terminate_menu': True}
 
     betting_category_id = extra_info.get('selected_category_id')
-    coefficient = extra_info.get('coefficients')[int(selected_entry_id) - 1]
     contest_id = extra_info.get('selected_contest_id')
     entry_id = extra_info.get('entries_to_bet_on')[int(selected_entry_id) - 1]
 
     user_id = kwargs.get('user_id')
+
+    # checking if this betting category still accepts bets
+    query = 'SELECT accepts_bets ' \
+            'FROM betting_categories ' \
+            f'WHERE betting_category_id = {betting_category_id};'
+
+    cur.execute(query)
+
+    if not bool(cur.fetchall()[0][0]):
+        return BETTING_CATEGORY_CLOSED_FOR_PLACING_BETS, {'terminate_menu': True}
+
+    response = ''
+
+    # checking if 15 minutes have passed since the user entered this menu
+    # so that the bet's coefficient could be as up ot date as possible
+    if extra_info.get('request_timestamp') - datetime.now() < timedelta(minutes=5):
+        query = 'SELECT coefficient ' \
+                'FROM entries ' \
+                'LEFT JOIN countries c2 on c2.country_id = entries.country_id ' \
+                'LEFT JOIN entries_contests ec on entries.entry_id = ec.entry_id ' \
+                'LEFT JOIN contests c on c.contest_id = ec.contest_id ' \
+                'LEFT JOIN betting_categories bc on c.contest_id = bc.contest_id ' \
+                'LEFT JOIN entries_status es on ' \
+                '(bc.betting_category_id = es.betting_category_id AND entries.entry_id = es.entry_id) ' \
+                f'WHERE bc.betting_category_id = {betting_category_id} ' \
+                f'AND entries.entry_id = {entry_id} ' \
+                'ORDER BY entries.entry_id;'
+
+        cur.execute(query)
+
+        coefficient = cur.fetchall()[0][0]
+
+        if not COEFFICIENT_OBSCURITY:
+            response = BET_COEFFICIENT_HAS_BEEN_MODIFIED
+    else:
+        coefficient = extra_info.get('coefficients')[int(selected_entry_id) - 1]
 
     query = 'INSERT INTO bets (user_id, points, coefficient, betting_category_id, contest_id, entry_id) ' \
             f'VALUES ({user_id}, {points_to_spend}, {coefficient}, ' \
@@ -203,7 +242,7 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
     logging.info(f"Bet has been placed by user {user_id}: "
                  f"betting category {betting_category_id} | entry {entry_id} | {points_to_spend} points")
 
-    return BET_PLACED_SUCCESSFULLY, {}
+    return BET_PLACED_SUCCESSFULLY + response, {}
 
 
 # =====================================================================================================
