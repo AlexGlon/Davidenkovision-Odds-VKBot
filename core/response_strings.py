@@ -42,4 +42,4 @@ SELECT_CATEGORY_TO_SHOW_BET_STATUSES = 'Выберите категорию ст
 SELECT_CONTEST_TO_SHOW_ENTRIES = 'Выберите конкурс, заявки из которого вы хотите увидеть:\n\n'
 # TODO: check this newline thing if it works as expected
 SELECT_ENTRY_TO_PLACE_BETS_ON = 'Введите номер заявки, на которую хотите сделать ставку, ' \
-                                'и количество фишек через пробел или новой строкой. К примеру, "1 69" или\n\n1\n69'
+                                'и количество фишек через пробел или новой строкой. К примеру, "1 69" или\n\n1\n69\n\n'
