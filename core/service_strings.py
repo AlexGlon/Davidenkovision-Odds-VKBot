@@ -1,1 +1,1 @@
-EXIT_MENU = r'^выход$'
+EXIT_MENU = r"^выход$"

@@ -7,10 +7,7 @@ import re
 import threading
 
 import vk_api
-from vk_api.longpoll import (
-    VkEventType,
-    VkLongPoll,
-)
+from vk_api.longpoll import VkEventType, VkLongPoll
 
 from core.dicts import (
     FIRST_DIALOGUE_STEPS,
@@ -33,27 +30,30 @@ def backup_user_states() -> None:
     USER_STATES_BACKUP = USER_STATES.copy()
 
     for user, data in USER_STATES_BACKUP.items():
-        if callable(data['next_step']):
+        if callable(data["next_step"]):
             # TODO: figure out how to fix incorrect __name__ representation
-            USER_STATES_BACKUP[user]['next_step'] = data['next_step'].__name__
-        USER_STATES_BACKUP[user]['last_message_timestamp'] = str(data['last_message_timestamp'])
+            USER_STATES_BACKUP[user]["next_step"] = data["next_step"].__name__
+        USER_STATES_BACKUP[user]["last_message_timestamp"] = str(
+            data["last_message_timestamp"]
+        )
 
     json_backup = json.dumps(USER_STATES_BACKUP, indent=4)
     backup_date = datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
 
-    with open(f'./user_states_backup/{backup_date}.json', 'w') as backup_file:
+    with open(f"./user_states_backup/{backup_date}.json", "w") as backup_file:
         backup_file.write(json_backup)
-        logging.info(f"Backed up USER_STATES in ./user_states_backup/{backup_date}.json file!")
+        logging.info(
+            f"Backed up USER_STATES in ./user_states_backup/{backup_date}.json file!"
+        )
 
 
 backup_user_states()
 
 
 # TODO: separate this into get/set methods?
-def write_msg_and_handle_user_states(user_id: int,
-                                     incoming_message: str,
-                                     current_extra_info: dict,
-                                     current_step_function) -> dict:
+def write_msg_and_handle_user_states(
+    user_id: int, incoming_message: str, current_extra_info: dict, current_step_function
+) -> dict:
     """Driver method for running the selected menu step function,
     sending the result and updating `USER_STATES` dict as well."""
 
@@ -68,28 +68,24 @@ def write_msg_and_handle_user_states(user_id: int,
     if message_to_send:
         write_msg(user_id, message_to_send)
 
-    if new_extra_info.get('terminate_menu'):
+    if new_extra_info.get("terminate_menu"):
         next_step = None
-    elif new_extra_info.get('skipped_menu_step'):
+    elif new_extra_info.get("skipped_menu_step"):
         next_step = SKIPPING_NEXT_DIALOGUE_STEP_HANDLERS[current_step_function]
     else:
         next_step = NEXT_DIALOGUE_STEP_HANDLERS[current_step_function]
 
     return {
-        'extra_info': new_extra_info
-        if next_step
-        else {},
-
-        'next_step': next_step,
-
-        'last_message_timestamp': datetime.datetime.now()
+        "extra_info": new_extra_info if next_step else {},
+        "next_step": next_step,
+        "last_message_timestamp": datetime.datetime.now(),
     }
 
 
 def write_msg(user_id: int, message: str) -> None:
     """Auxiliary/alias method for sending a message to a VK user."""
 
-    vk.method('messages.send', {'user_id': user_id, 'message': message, 'random_id': 0})
+    vk.method("messages.send", {"user_id": user_id, "message": message, "random_id": 0})
 
 
 # Авторизуемся как сообщество
@@ -111,9 +107,9 @@ for event in longpoll.listen():
             # if it is the first time they send a message
             if not USER_STATES.get(event.user_id):
                 USER_STATES[event.user_id] = {
-                    'extra_info': {},
-                    'next_step': None,
-                    'last_message_timestamp': datetime.datetime.now(),
+                    "extra_info": {},
+                    "next_step": None,
+                    "last_message_timestamp": datetime.datetime.now(),
                 }
                 logging.info(f"New user initialized: {event.user_id}")
 
@@ -122,7 +118,7 @@ for event in longpoll.listen():
 
             # if the user is not in any menu, let's see if his message is amongst those
             # that initiate menu browsing
-            if not USER_STATES[event.user_id]['next_step']:
+            if not USER_STATES[event.user_id]["next_step"]:
 
                 menu_done_flag = False
 
@@ -132,7 +128,7 @@ for event in longpoll.listen():
                         USER_STATES[event.user_id] = write_msg_and_handle_user_states(
                             event.user_id,
                             incoming_message,
-                            USER_STATES[event.user_id]['extra_info'],
+                            USER_STATES[event.user_id]["extra_info"],
                             FIRST_DIALOGUE_STEPS[pattern],
                         )
                         menu_done_flag = True
@@ -147,8 +143,8 @@ for event in longpoll.listen():
                 USER_STATES[event.user_id] = write_msg_and_handle_user_states(
                     event.user_id,
                     incoming_message,
-                    USER_STATES[event.user_id]['extra_info'],
-                    USER_STATES[event.user_id]['next_step'],
+                    USER_STATES[event.user_id]["extra_info"],
+                    USER_STATES[event.user_id]["next_step"],
                 )
 
             # =====================================================================================================

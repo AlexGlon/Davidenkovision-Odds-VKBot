@@ -8,6 +8,7 @@ emoji = "*"
 vk-api = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
+pre-commit = "*"
 
 [dev-packages]
 
