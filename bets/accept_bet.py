@@ -236,7 +236,7 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
 
     # checking if 15 minutes have passed since the user entered this menu
     # so that the bet's coefficient could be as up ot date as possible
-    if extra_info.get("request_timestamp") - datetime.now() < timedelta(minutes=5):
+    if datetime.now() - extra_info.get("request_timestamp") < timedelta(minutes=5):
         query = (
             "SELECT coefficient "
             "FROM entries "
