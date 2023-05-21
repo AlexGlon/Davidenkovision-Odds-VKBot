@@ -1,3 +1,5 @@
+from admin_tools.close_category import admin_close_category, admin_get_category_to_close
+from admin_tools.open_category import admin_get_category_to_open, admin_open_category
 from bets.accept_bet import (
     get_bet_category_to_bet_on,
     get_entry_to_bet_on,
@@ -16,9 +18,11 @@ from bets.show_current_statuses import (
 from show_entries import get_contest_to_show_entries, get_entries_to_show
 
 FIRST_DIALOGUE_STEPS = {
+    r"^закрыть категорию$": admin_get_category_to_close,
     r"^заявки$": get_contest_to_show_entries,
     r"^история ставок$": get_user_bets_history,
     r"^мои ставки$": get_current_contests_bets_history,
+    r"^открыть категорию$": admin_get_category_to_open,
     r"^отменить ставку$": get_bets_eligible_for_deletion,
     r"^ставка$": get_bet_category_to_bet_on,
     r"^ставки$": get_category_to_show_bet_statuses,
@@ -28,6 +32,10 @@ FIRST_DIALOGUE_STEPS = {
 # and menu step handlers that follow
 
 NEXT_DIALOGUE_STEP_HANDLERS = {
+    admin_close_category: None,
+    admin_get_category_to_close: admin_close_category,
+    admin_get_category_to_open: admin_open_category,
+    admin_open_category: None,
     cancel_selected_bet: None,
     get_bet_statuses_to_show: None,
     get_bet_cancellation_confirmation: cancel_selected_bet,

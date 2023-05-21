@@ -2,6 +2,10 @@
 # that are valid for invoking a particular menu step
 
 DIALOGUE_STEP_INVOKING_PATTERNS = {
+    "admin_close_category": r"^\d+$",
+    "admin_get_category_to_open": r"^открыть категорию$",
+    "admin_get_category_to_close": r"^закрыть категорию$",
+    "admin_open_category": r"^\d+$",
     "cancel_selected_bet": r"^\d+$",
     "get_bet_statuses_to_show": r"^\d+$",
     "get_bet_cancellation_confirmation": r"^\d+$",

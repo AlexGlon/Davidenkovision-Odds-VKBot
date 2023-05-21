@@ -1,5 +1,19 @@
 # TODO: implement localization
 
+ADMIN_CATEGORY_CLOSED = "Данная категория ставок была успешно закрыта."
+ADMIN_CATEGORY_OPENED = "Данная категория ставок была успешно открыта."
+ADMIN_INVALID_CATEGORY_TO_CLOSE = (
+    "Hеверный номер категории! "
+    'Повторите процесс заново, отправив сообщение с текстом "закрыть категорию".'
+)
+ADMIN_INVALID_CATEGORY_TO_OPEN = (
+    "Hеверный номер категории! "
+    'Повторите процесс заново, отправив сообщение с текстом "открыть категорию".'
+)
+ADMIN_NO_CATEGORIES_TO_CLOSE = "Все категории ставок на данный момент закрыты."
+ADMIN_NO_CATEGORIES_TO_OPEN = "Все категории ставок на данный момент открыты."
+ADMIN_SELECT_CATEGORY_TO_CLOSE = "Выберите категорию ставок для закрытия:\n\n"
+ADMIN_SELECT_CATEGORY_TO_OPEN = "Выберите категорию ставок для открытия:\n\n"
 BET_CANCELLATION = "Отмена ставки"
 BET_CANCELLATION_ABORTED = "Ставка не была отменена."
 BET_CANCELLATION_SUCCESS = (
@@ -56,6 +70,10 @@ NO_BETS_TO_SHOW_FOR_CURRENT_CONTESTS = (
 NO_CATEGORIES_TO_PLACE_BETS_ON = "На данный момент нет открытых категорий ставок."
 NO_CATEGORIES_TO_SHOW_BET_STATUSES = "На данный момент нет текущих категорий ставок."
 NO_CONTESTS_TO_SHOW_ENTRIES = "На данный момент нет текущих конкурсов."
+NO_PERMISSION_FOR_ADMIN_COMMAND = (
+    "Вы не можете воспользоваться этой командой, "
+    "так как она доступна только для администраторов."
+)
 NO_POINTS_TO_SPEND = "Вы не можете сделать ставку, так как у вас на балансе 0 фишек."
 NO_VISIBLE_CATEGORIES_TO_SHOW_BET_STATUSES = (
     "На данный момент нет текущих и нескрытых категорий ставок."
