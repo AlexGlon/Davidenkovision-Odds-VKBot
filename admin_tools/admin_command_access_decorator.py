@@ -1,7 +1,7 @@
 import logging
 
 from admin_tools.get_admins_list import get_admins_list
-from core.response_strings import NO_PERMISSION_FOR_ADMIN_COMMAND
+from core.response_strings import NO_PERMISSION_FOR_ADMIN_COMMAND, get_easter_egg_reply
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -31,7 +31,9 @@ def admin_command_decorator(*args, **kwargs):
                     f"User {user_id} tried to use an admin command, despite having no permission to do so!"
                 )
 
-                return NO_PERMISSION_FOR_ADMIN_COMMAND, {"terminate_menu": True}
+                return NO_PERMISSION_FOR_ADMIN_COMMAND + " " + get_easter_egg_reply(), {
+                    "terminate_menu": True
+                }
             else:
                 message_to_send, extra_info = menu_step_function(*args, **kwargs)
 

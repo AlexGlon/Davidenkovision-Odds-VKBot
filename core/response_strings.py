@@ -1,4 +1,9 @@
+import random
+
+from core.easter_egg_replies import get_easter_egg_replies
+
 # TODO: implement localization
+
 
 ADMIN_CATEGORY_CLOSED = "Данная категория ставок была успешно закрыта."
 ADMIN_CATEGORY_OPENED = "Данная категория ставок была успешно открыта."
@@ -41,6 +46,7 @@ CONFIRM_BET_CANCELLATION = (
     "Вы уверены, что хотите отменить данную ставку? "
     "Если уверены, то ответьте на это сообщение порядковым номером ставки.\n\n"
 )
+EASTER_EGG_REPLIES = get_easter_egg_replies()
 HIDDEN_COEFFICIENT = "Временно скрыт"
 INVALID_BET_TO_CANCEL_NUMBER = (
     "Hеверный номер ставки! "
@@ -93,3 +99,7 @@ SELECT_ENTRY_TO_PLACE_BETS_ON = (
     "Введите номер заявки, на которую хотите сделать ставку, "
     'и количество фишек через пробел или новой строкой. К примеру, "1 69" или\n\n1\n69\n\n'
 )
+
+
+def get_easter_egg_reply() -> str:
+    return random.choice(EASTER_EGG_REPLIES)

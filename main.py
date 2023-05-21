@@ -15,6 +15,7 @@ from core.dicts import (
     SKIPPING_NEXT_DIALOGUE_STEP_HANDLERS,
 )
 from core.dotenv_variables import MINUTES_PER_BACKUP, TOKEN
+from core.response_strings import get_easter_egg_reply
 
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
@@ -135,9 +136,8 @@ for event in longpoll.listen():
 
                         break
 
-                # TODO: implement sending an easter egg message if the syntax is wrong
                 if not menu_done_flag:
-                    pass
+                    write_msg(event.user_id, get_easter_egg_reply())
 
             else:
                 USER_STATES[event.user_id] = write_msg_and_handle_user_states(
@@ -151,13 +151,6 @@ for event in longpoll.listen():
             #                                              OLD CODE
             # =====================================================================================================
 
-            # # huge 'if' tree -- maybe it needs to get turned into a separate function
-            # if request.lower() == "чего ж ты твaрина!":
-            #     if bets_open:
-            #         bets_open = False
-            #     else:
-            #         bets_open = True
-            #
             # # easter egg replies
             # elif request.lower() == "скажи когда":
             #     write_msg(event.user_id, f" {flags.Belarus} КОГДААААААААААА")

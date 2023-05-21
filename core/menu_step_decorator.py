@@ -2,6 +2,7 @@ import logging
 import re
 
 from core.dialogue_invoker_dicts import DIALOGUE_STEP_INVOKING_PATTERNS
+from core.response_strings import get_easter_egg_reply
 from core.service_strings import EXIT_MENU
 
 logging.basicConfig(level=logging.DEBUG)
@@ -33,14 +34,12 @@ def menu_decorator(*args, **kwargs):
             result = re.search(pattern_to_match, invoking_message.lower())
 
             if not result:
-                # TODO: implement sending an easter egg message if the syntax is wrong
-
                 logging.info(
                     f"SKIP {invoking_message.lower()} "
                     f"{DIALOGUE_STEP_INVOKING_PATTERNS.get(menu_step_function.__name__)} "
                     f"{DIALOGUE_STEP_INVOKING_PATTERNS}"
                 )
-                return "flop", {"terminate_menu": True}
+                return get_easter_egg_reply(), {"terminate_menu": True}
 
             message_to_send, extra_info = menu_step_function(*args, **kwargs)
 
