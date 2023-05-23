@@ -17,5 +17,7 @@ DIALOGUE_STEP_INVOKING_PATTERNS = {
     "get_entries_to_show": r"^\d+$",
     "get_entry_to_bet_on": r"^\d+$",
     "get_user_bets_history": r"^история ставок$",
+    "show_current_balance": r"^баланс$",
+    "show_welcome_message": r"^старт$",
     "validate_and_accept_incoming_bet": r"^\d+\s\d+$",
 }

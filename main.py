@@ -15,7 +15,11 @@ from core.dicts import (
     SKIPPING_NEXT_DIALOGUE_STEP_HANDLERS,
 )
 from core.dotenv_variables import MINUTES_PER_BACKUP, TOKEN
-from core.response_strings import get_regular_easter_egg_reply
+from core.response_strings import (
+    WELCOME_MESSAGE,
+    get_regular_easter_egg_reply,
+    get_welcome_easter_egg_reply,
+)
 
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
@@ -113,6 +117,9 @@ for event in longpoll.listen():
                     "last_message_timestamp": datetime.datetime.now(),
                 }
                 logging.info(f"New user initialized: {event.user_id}")
+                write_msg(
+                    event.user_id, WELCOME_MESSAGE + get_welcome_easter_egg_reply()
+                )
 
             # user's incoming message
             incoming_message = event.text.lower()
