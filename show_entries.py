@@ -1,5 +1,4 @@
 import json
-import random
 
 import flags
 from core.db_connection import cur
@@ -127,30 +126,3 @@ def print_BLR():
 
 def print_AUS():
     return f"{flags.Australia} ну и хер с тобой, я тоже вызываю!"
-
-
-# undefined command replies
-def random_reply():
-    # TODO: move these replies into a separate file for easier & quicker editing
-    replies = (
-        "Ты чё за ним прячешься?! Ты всё время с кем-нибудь!..",
-        "Я отвечаю за свои слова, я его сейчас ебану!",
-        "До чего ж ты тварина!..",
-        "Что ты врёшь, а? Что ты врёшь?!",
-        "Пираты, заебали!!!",
-        "ДОКУМЕЕЕЕЕНТЫ ПОКАЖИИИИТЕ!",
-        "You people are confused!..",
-        "Now hey! Hey! I'm ta-a-alking!",
-        "Be quiet! I have a question!",
-        "Miss who?",
-        "Займите своё место, цирк не устраивайте!",
-        "Я вам не давала слова! Слова вам не давала!",
-        "Перезвоните через полчаса... Сука!",
-        "I would never think that... I thought they were really slow...",
-        "Я никогда больше в парк одна не пойду!",
-        "Нельзя как попало резать лошадь!",
-        "Девочки, ну это же стирка, это же порошок!!!",
-        "Смотри что ты делаешь, дауниха де-биль-на-ая-я-я!",
-        "Отдай муку! Моя мука!",
-    )
-    return random.choice(replies)

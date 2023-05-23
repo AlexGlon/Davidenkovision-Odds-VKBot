@@ -2,7 +2,7 @@ import logging
 import re
 
 from core.dialogue_invoker_dicts import DIALOGUE_STEP_INVOKING_PATTERNS
-from core.response_strings import get_easter_egg_reply
+from core.response_strings import get_regular_easter_egg_reply
 from core.service_strings import EXIT_MENU
 
 logging.basicConfig(level=logging.DEBUG)
@@ -39,7 +39,7 @@ def menu_decorator(*args, **kwargs):
                     f"{DIALOGUE_STEP_INVOKING_PATTERNS.get(menu_step_function.__name__)} "
                     f"{DIALOGUE_STEP_INVOKING_PATTERNS}"
                 )
-                return get_easter_egg_reply(), {"terminate_menu": True}
+                return get_regular_easter_egg_reply(), {"terminate_menu": True}
 
             message_to_send, extra_info = menu_step_function(*args, **kwargs)
 

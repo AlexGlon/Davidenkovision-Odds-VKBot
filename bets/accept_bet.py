@@ -18,6 +18,7 @@ from core.response_strings import (
     NO_POINTS_TO_SPEND,
     SELECT_CATEGORY_TO_PLACE_BETS_ON,
     SELECT_ENTRY_TO_PLACE_BETS_ON,
+    get_bet_placement_easter_egg_reply,
 )
 from flags import country_dict
 from utils import calculate_stats
@@ -236,7 +237,7 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
 
     # checking if 15 minutes have passed since the user entered this menu
     # so that the bet's coefficient could be as up ot date as possible
-    if datetime.now() - extra_info.get("request_timestamp") < timedelta(minutes=5):
+    if datetime.now() - extra_info.get("request_timestamp") > timedelta(minutes=5):
         query = (
             "SELECT coefficient "
             "FROM entries "
@@ -253,7 +254,7 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
 
         cur.execute(query)
 
-        coefficient = cur.fetchall()[0][0]
+        coefficient = coefficient_calculation(cur.fetchall()[0][0])
 
         if not COEFFICIENT_OBSCURITY:
             response = BET_COEFFICIENT_HAS_BEEN_MODIFIED
@@ -273,7 +274,11 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
         f"betting category {betting_category_id} | entry {entry_id} | {points_to_spend} points"
     )
 
-    return BET_PLACED_SUCCESSFULLY + response, {}
+    return (
+        BET_PLACED_SUCCESSFULLY.format(phrase=get_bet_placement_easter_egg_reply())
+        + response,
+        {},
+    )
 
 
 # =====================================================================================================

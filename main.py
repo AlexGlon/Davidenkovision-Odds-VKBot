@@ -15,7 +15,7 @@ from core.dicts import (
     SKIPPING_NEXT_DIALOGUE_STEP_HANDLERS,
 )
 from core.dotenv_variables import MINUTES_PER_BACKUP, TOKEN
-from core.response_strings import get_easter_egg_reply
+from core.response_strings import get_regular_easter_egg_reply
 
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
@@ -137,7 +137,7 @@ for event in longpoll.listen():
                         break
 
                 if not menu_done_flag:
-                    write_msg(event.user_id, get_easter_egg_reply())
+                    write_msg(event.user_id, get_regular_easter_egg_reply())
 
             else:
                 USER_STATES[event.user_id] = write_msg_and_handle_user_states(
