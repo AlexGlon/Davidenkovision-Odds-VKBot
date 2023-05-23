@@ -1,4 +1,10 @@
+import random
+
+from core.easter_egg_replies import get_easter_egg_replies
+from core.enums import EasterEggReplyEnum
+
 # TODO: implement localization
+
 
 ADMIN_CATEGORY_CLOSED = "Данная категория ставок была успешно закрыта."
 ADMIN_CATEGORY_OPENED = "Данная категория ставок была успешно открыта."
@@ -27,7 +33,7 @@ BET_CREATION_DATE = "Дата ставки"
 BET_PLACED_SUCCESSFULLY = (
     "Ставка сделана! "
     "Вы можете увидеть её в списке своих ставок, "
-    'введя сообщение с текстом "мои ставки" или "история ставок".\n\n'
+    'введя сообщение с текстом "мои ставки" или "история ставок". {phrase}\n\n'
 )
 BETTING_CATEGORY_CLOSED_FOR_CANCELLING_BETS = (
     "Данная категория ставок больше не принимает ставки, "
@@ -93,3 +99,20 @@ SELECT_ENTRY_TO_PLACE_BETS_ON = (
     "Введите номер заявки, на которую хотите сделать ставку, "
     'и количество фишек через пробел или новой строкой. К примеру, "1 69" или\n\n1\n69\n\n'
 )
+
+
+BET_PLACEMENT_EASTER_EGG_REPLIES = get_easter_egg_replies(EasterEggReplyEnum.BET_PLACED)
+EASTER_EGG_REPLIES = get_easter_egg_replies(EasterEggReplyEnum.REGULAR)
+WELCOME_EASTER_EGG_REPLIES = get_easter_egg_replies(EasterEggReplyEnum.WELCOME)
+
+
+def get_bet_placement_easter_egg_reply() -> str:
+    return random.choice(BET_PLACEMENT_EASTER_EGG_REPLIES)
+
+
+def get_regular_easter_egg_reply() -> str:
+    return random.choice(EASTER_EGG_REPLIES)
+
+
+def get_welcome_easter_egg_reply() -> str:
+    return random.choice(WELCOME_EASTER_EGG_REPLIES)
