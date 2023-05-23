@@ -148,7 +148,7 @@ def get_bet_cancellation_confirmation(**kwargs) -> tuple[str, dict]:
     entry_info = extra_info.get("entries")[selected_bet - 1]
     points = extra_info.get("points")[selected_bet - 1]
 
-    response = CONFIRM_BET_CANCELLATION
+    response = CONFIRM_BET_CANCELLATION.format(id=selected_bet)
 
     response += (
         f"{selected_bet}. {entry_info['contest_name']}"

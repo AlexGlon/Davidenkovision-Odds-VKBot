@@ -45,7 +45,7 @@ BETTING_CATEGORY_CLOSED_FOR_PLACING_BETS = (
 COEFFICIENT = "Коэффициент"
 CONFIRM_BET_CANCELLATION = (
     "Вы уверены, что хотите отменить данную ставку? "
-    "Если уверены, то ответьте на это сообщение порядковым номером ставки.\n\n"
+    "Если уверены, то ответьте на это сообщение порядковым номером ставки (в данном случае {id}).\n\n"
 )
 HIDDEN_COEFFICIENT = "Временно скрыт"
 INVALID_BET_TO_CANCEL_NUMBER = (
