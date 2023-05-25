@@ -11,6 +11,7 @@ Azerbaijan = f"{emoji.emojize(':Azerbaijan:')}"
 Belarus = f"{emoji.emojize(':white_circle::red_circle::white_circle:')}"
 Belgium = f"{emoji.emojize(':Belgium:')}"
 BosniaHerzegovina = f"{emoji.emojize(':Bosnia_&_Herzegovina:')}"
+Croatia = f"{emoji.emojize(':Croatia:')}"
 Cyprus = f"{emoji.emojize(':Cyprus:')}"
 Czechia = f"{emoji.emojize(':Czechia:')}"
 Denmark = f"{emoji.emojize(':Denmark:')}"
@@ -45,6 +46,7 @@ Slovenia = f"{emoji.emojize(':Slovenia:')}"
 Spain = f"{emoji.emojize(':Spain:')}"
 Sweden = f"{emoji.emojize(':Sweden:')}"
 Switzerland = f"{emoji.emojize(':Switzerland:')}"
+Turkey = f"{emoji.emojize(':Turkey:')}"
 Ukraine = f"{emoji.emojize(':Ukraine:')}"
 UnitedKingdom = f"{emoji.emojize(':United_Kingdom:')}"
 
@@ -58,6 +60,7 @@ country_dict = {
     "Belarus": Belarus,
     "Belgium": Belgium,
     "Bosnia and Herzegovina": BosniaHerzegovina,
+    "Croatia": Croatia,
     "Cyprus": Cyprus,
     "Czechia": Czechia,
     "Denmark": Denmark,
@@ -92,6 +95,7 @@ country_dict = {
     "Spain": Spain,
     "Sweden": Sweden,
     "Switzerland": Switzerland,
+    "Turkey": Turkey,
     "Ukraine": Ukraine,
     "United Kingdom": UnitedKingdom,
 }
