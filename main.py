@@ -88,6 +88,37 @@ def write_msg_and_handle_user_states(
 
 
 def write_msg(user_id: int, message: str) -> None:
+    """Auxiliary/alias method for checking and splitting a message before sending to a VK user."""
+
+    if len(message) > 4096:
+        current_first_char_index = 0
+        current_last_char_index = 4095
+
+        while True:
+            current_split = message[
+                current_first_char_index : current_last_char_index + 1
+            ]
+
+            if len(current_split) < 4096:
+                post_message(user_id, message[current_first_char_index:])
+                break
+
+            try:
+                last_linebreaks_index = current_split.rindex("\n\n")
+            except ValueError:
+                last_linebreaks_index = current_last_char_index
+
+            post_message(
+                user_id, message[current_first_char_index:last_linebreaks_index]
+            )
+            current_first_char_index = last_linebreaks_index
+            current_last_char_index = last_linebreaks_index + 4096
+
+    else:
+        post_message(user_id, message)
+
+
+def post_message(user_id: int, message: str) -> None:
     """Auxiliary/alias method for sending a message to a VK user."""
 
     vk.method("messages.send", {"user_id": user_id, "message": message, "random_id": 0})

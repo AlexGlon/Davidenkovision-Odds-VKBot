@@ -22,6 +22,11 @@ def coefficient_calculation(coef):
         return 1000
 
 
+# =====================================================================================================
+#                                              OLD CODE
+# =====================================================================================================
+
+
 def calculate(entry_id, tokens):
     """Updates stats of each entry after any operation with a bet."""
     with open("stats.json", "r") as file:

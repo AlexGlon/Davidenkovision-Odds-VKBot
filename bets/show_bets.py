@@ -29,6 +29,7 @@ def get_current_contests_bets_history(**kwargs):
         "c2.name, e.year_prefix, e.artist, e.title, "
         "bets.points, bets.coefficient, bets.date "
         "FROM bets "
+        # TODO: should table `bets` have `contest_id` field?
         "LEFT JOIN contests c ON c.contest_id = bets.contest_id "
         "LEFT JOIN contests_types ct on ct.type_id = c.type "
         "LEFT JOIN entries e on e.entry_id = bets.entry_id "
@@ -56,12 +57,12 @@ def get_current_contests_bets_history(**kwargs):
     for bet in bets:
         response += (
             f"{bet[0]}. {BET_CANCELLATION + new_line if bet[10] < 0 else ''}"
-            f"{bet[2]} {bet[4] if {bet[4]} else ''}: {bet[5]}\n"
+            f"{bet[2]}{' ' + bet[4] if bet[4] is not None else ''}: {bet[5]}\n"
             f"{country_dict.get(bet[6])} {bet[6]}{' ' + bet[7] if bet[7] else ''} | "
             f"{bet[8]} -- {bet[9]}\n"
             f"{POINTS}: {int(bet[10])}\n"
             f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if (COEFFICIENT_OBSCURITY and bet[3]) else bet[11]}\n"
-            f"{BET_CREATION_DATE}: {bet[12]}\n\n"
+            f"{BET_CREATION_DATE}: {bet[12]} UTC\n\n"
         )
 
     return response, {}
@@ -106,12 +107,12 @@ def get_user_bets_history(**kwargs):
 
         response += (
             f"{bet[0]}. {BET_CANCELLATION + new_line if bet[10] < 0 else ''}"
-            f"{bet[2]}{' ' + bet[4] if {bet[4]} else ''}: {bet[5]}\n"
+            f"{bet[2]}{' ' + bet[4] if bet[4] is not None else ''}: {bet[5]}\n"
             f"{country_dict.get(country)} {country}{' ' + bet[7] if bet[7] else ''} | "
             f"{bet[8]} -- {bet[9]}\n"
             f"{POINTS if points > 0 else POINTS_RETURNED}: {abs(points)}\n"
             f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if (COEFFICIENT_OBSCURITY and bet[3]) else bet[11]}\n"
-            f"{BET_CREATION_DATE}: {bet[12]}\n\n"
+            f"{BET_CREATION_DATE}: {bet[12]} UTC\n\n"
         )
 
     return response, {}

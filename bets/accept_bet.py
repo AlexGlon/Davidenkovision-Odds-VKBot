@@ -165,6 +165,9 @@ def get_entry_to_bet_on(**kwargs) -> tuple[str, dict]:
         "LEFT JOIN entries_status es on "
         "(bc.betting_category_id = es.betting_category_id AND entries.entry_id = es.entry_id) "
         f"WHERE bc.betting_category_id = {db_category_id} "
+        # TODO: this is connected to cases
+        #  please reinvestigate this!!
+        f"AND es.coefficient IS NOT NULL "
         "ORDER BY entries.entry_id;"
     )
 
@@ -238,6 +241,7 @@ def validate_and_accept_incoming_bet(**kwargs) -> tuple[str, dict]:
     # checking if 15 minutes have passed since the user entered this menu
     # so that the bet's coefficient could be as up ot date as possible
     if datetime.now() - extra_info.get("request_timestamp") > timedelta(minutes=5):
+        # TODO review this query
         query = (
             "SELECT coefficient "
             "FROM entries "

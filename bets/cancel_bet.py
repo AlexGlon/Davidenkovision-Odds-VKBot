@@ -101,7 +101,7 @@ def get_bets_eligible_for_deletion(**kwargs) -> tuple[str, dict]:
             f"{entry_info['artist']} -- {entry_info['title']}\n"
             f"{POINTS}: {int(bet[2])}\n"
             f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if COEFFICIENT_OBSCURITY else bet[3]}\n"
-            f"{BET_CREATION_DATE}: {bet[14]}\n\n"
+            f"{BET_CREATION_DATE}: {bet[14]} UTC\n\n"
         )
 
     extra_info["bet_listed_numbers"] = tuple(extra_info["bet_listed_numbers"])
@@ -159,7 +159,7 @@ def get_bet_cancellation_confirmation(**kwargs) -> tuple[str, dict]:
         f"{entry_info['artist']} -- {entry_info['title']}\n"
         f"{POINTS}: {int(points)}\n"
         f"{COEFFICIENT}: {HIDDEN_COEFFICIENT if COEFFICIENT_OBSCURITY else coefficient}\n"
-        f"{BET_CREATION_DATE}: {bet_creation_date}\n\n"
+        f"{BET_CREATION_DATE}: {bet_creation_date} UTC\n\n"
     )
 
     return response, extra_info
