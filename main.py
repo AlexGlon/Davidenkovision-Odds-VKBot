@@ -3,6 +3,7 @@
 import datetime
 import json
 import logging
+import os.path
 import re
 import threading
 
@@ -24,6 +25,7 @@ from core.response_strings import (
 # a dictionary that contains information about user's last visited menu
 # and temporary information from previous menus
 USER_STATES = {}
+USER_STATES_BACKUP_LOCATION = "./user_states_backup/"
 
 
 def backup_user_states() -> None:
@@ -45,10 +47,16 @@ def backup_user_states() -> None:
     json_backup = json.dumps(USER_STATES_BACKUP, indent=4)
     backup_date = datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")
 
-    with open(f"./user_states_backup/{backup_date}.json", "w") as backup_file:
+    if not os.path.exists(USER_STATES_BACKUP_LOCATION):
+        os.makedirs(USER_STATES_BACKUP_LOCATION)
+        logging.info(
+            f"Created a back-uo folder for user states at {USER_STATES_BACKUP_LOCATION}."
+        )
+
+    with open(f"{USER_STATES_BACKUP_LOCATION}{backup_date}.json", "w") as backup_file:
         backup_file.write(json_backup)
         logging.info(
-            f"Backed up USER_STATES in ./user_states_backup/{backup_date}.json file!"
+            f"Backed up USER_STATES in {USER_STATES_BACKUP_LOCATION}{backup_date}.json file!"
         )
 
 

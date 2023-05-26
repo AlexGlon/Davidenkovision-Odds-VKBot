@@ -1,5 +1,12 @@
 version: '3'
 services:
+  vk-bot:
+#    profiles: [ "bot" ]
+    command: python3 main.py
+    build: .
+    restart: on-failure
+    depends_on:
+      - db
   db:
     image: postgres:latest
     restart: always

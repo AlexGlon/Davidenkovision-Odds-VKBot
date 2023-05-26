@@ -1,15 +1,15 @@
-FROM python:3.9.13-alpine
+FROM python:3.10.6-alpine
 
-RUN apt-get update
-RUN apt-get -y upgrade
-RUN apt-get -y install libpq-dev
-RUN apt-get clean
-RUN rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apk add --update
+RUN apk upgrade
 
 ADD . /opt/dv-vkbot
 
-COPY requirements.txt /opt/dv-vkbot/requirements.txt
-RUN pip install -r /opt/dv-vkbot/requirements.txt --no-cache-dir
+COPY Pipfile Pipfile.lock ./
+RUN python -m pip install --upgrade pip
+RUN pip install pipenv && pipenv install --dev --system --deploy
 
-# работает с "./usr/bin/python", но крашится из-за не ASCII-символа
-ENTRYPOINT ["./usr/bin/python3", "./opt/dv-vkbot/main.py"]
+ENTRYPOINT ["python3", "./opt/dv-vkbot/main.py"]
