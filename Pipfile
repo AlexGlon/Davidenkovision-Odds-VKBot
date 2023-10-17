@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+emoji = "*"
+vk-api = "*"
+psycopg2-binary = "*"
+python-dotenv = "*"
+pre-commit = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
